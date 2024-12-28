@@ -63,26 +63,29 @@ const contactRoutes = require('./routes/contact');
 
 const app = express();
 
-// 設置 CORS - 必須在所有路由之前
-app.use((req, res, next) => {
-    const allowedOrigins = ['https://coffee-github-io.onrender.com', 'http://localhost:5500'];
-    const origin = req.headers.origin;
-    
-    if (allowedOrigins.includes(origin)) {
-        res.header('Access-Control-Allow-Origin', origin);
-    }
-    
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
+// 基本的 CORS 設置
+const corsOptions = {
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            'https://coffee-github-io.onrender.com',
+            'http://localhost:5500',
+            'http://localhost:3000'
+        ];
+        
+        // 允許沒有 origin 的請求（如移動應用）
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
 
-    // 處理 OPTIONS 請求
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    next();
-});
+app.use(cors(corsOptions));
 
 // 調試中間件 - 記錄所有請求
 app.use((req, res, next) => {

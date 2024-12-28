@@ -342,10 +342,13 @@ class MemberSystem {
         this.token = token;
         try {
             const response = await fetch(`${this.apiUrl}/auth/profile`, {
+                method: 'GET',
                 headers: {
+                    ...config.headers,
                     'Authorization': `Bearer ${token}`
                 },
-                credentials: 'include'
+                credentials: 'include',
+                mode: 'cors'
             });
 
             if (response.ok) {
