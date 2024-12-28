@@ -169,19 +169,17 @@ class MemberSystem {
 
             return `
                 <div class="order-item">
-                    <div class="order-header">
-                        <h4>訂單編號：${orderNumber}</h4>
-                        <span>訂購時間：${formattedDate}</span>
-                    </div>
-                    <div class="order-details">
-                        <p>總金額：NT$ ${order.totalAmount}</p>
-                        <p>付款方式：${order.paymentMethod}</p>
-                        <p>訂單狀態：${order.status || '處理中'}</p>
-                    </div>
-                    <div class="order-actions">
-                        <button onclick="window.location.href='order-tracking.html?id=${order._id}'" class="track-order-btn">
-                            追蹤訂單
-                        </button>
+                    <div class="order-info">
+                        <div class="order-main-info">
+                            <p><span class="info-label">訂單編號：</span>${orderNumber}</p>
+                            <p><span class="info-label">訂購時間：</span>${formattedDate}</p>
+                            <p><span class="info-label">總金額：</span>NT$ ${order.totalAmount}</p>
+                            <p><span class="info-label">付款方式：</span>${order.paymentMethod || '未指定'}</p>
+                            <p><span class="info-label">訂單狀態：</span>${order.status || 'pending'}</p>
+                        </div>
+                        <div class="order-actions">
+                            <a href="order-tracking.html?id=${order._id}" class="track-order-btn">追蹤訂單</a>
+                        </div>
                     </div>
                 </div>
             `;

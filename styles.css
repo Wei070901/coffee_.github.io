@@ -2028,68 +2028,90 @@ main {
 
 /* 訂單列表樣式 */
 .order-list {
-    margin-top: 20px;
+    margin: 20px 0;
+    padding: 0;
 }
 
 .order-item {
     background-color: #fff;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     padding: 20px;
 }
 
-.order-header {
-    border-bottom: 1px solid #eee;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
+.order-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
-.order-header h4 {
+.order-main-info {
+    flex-grow: 1;
+}
+
+.order-main-info p {
     color: #333;
-    font-size: 1.1em;
-    margin: 0 0 8px 0;
-}
-
-.order-header span {
-    color: #666;
-    font-size: 0.9em;
-}
-
-.order-details {
-    margin-bottom: 15px;
-}
-
-.order-details p {
-    color: #555;
+    font-size: 14px;
     margin: 8px 0;
+    line-height: 1.4;
+}
+
+.info-label {
+    color: #666;
+    display: inline-block;
+    font-weight: 500;
+    width: 85px;
 }
 
 .order-actions {
-    text-align: right;
+    margin-left: 20px;
+    padding-top: 8px;
 }
 
 .track-order-btn {
-    background-color: #8B4513;  /* 深咖啡色 */
+    background-color: #8B4513;
     border: none;
     border-radius: 4px;
     color: white;
-    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
     padding: 8px 16px;
+    text-decoration: none;
     transition: background-color 0.3s;
 }
 
 .track-order-btn:hover {
     background-color: #693310;
+    text-decoration: none;
 }
 
-.track-order-btn:active {
-    background-color: #6B3E26;
+/* 訂單狀態樣式 */
+.order-status {
+    border-radius: 12px;
+    display: inline-block;
+    font-size: 12px;
+    padding: 4px 8px;
 }
 
-.order-footer {
-    position: relative;
-    padding-bottom: 50px;  /* 為按鈕留出空間 */
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-processing {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 /* 收藏清單樣式 */
