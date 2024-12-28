@@ -153,32 +153,37 @@ class MemberSystem {
         }
 
         const orderHTML = orders.map(order => {
-            // 格式化訂單編號
             const orderDate = new Date(order.createdAt);
-            const orderNumber = `CF${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${order._id.slice(-6)}`;
+            const formattedDate = `${orderDate.getFullYear()}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
             
-            // 格式化日期時間
-            const formattedDate = orderDate.toLocaleString('zh-TW', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-
             return `
                 <div class="order-item">
-                    <div class="order-info">
-                        <div class="order-main-info">
-                            <p><span class="info-label">訂單編號：</span>${orderNumber}</p>
-                            <p><span class="info-label">訂購時間：</span>${formattedDate}</p>
-                            <p><span class="info-label">總金額：</span>NT$ ${order.totalAmount}</p>
-                            <p><span class="info-label">付款方式：</span>${order.paymentMethod || '未指定'}</p>
-                            <p><span class="info-label">訂單狀態：</span>${order.status || 'pending'}</p>
+                    <div class="order-content">
+                        <div class="order-row">
+                            <div class="order-label">訂單編號：</div>
+                            <div class="order-value">CF${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${order._id.slice(-6)}</div>
                         </div>
-                        <div class="order-actions">
-                            <a href="order-tracking.html?id=${order._id}" class="track-order-btn">追蹤訂單</a>
+                        <div class="order-row">
+                            <div class="order-label">訂購時間：</div>
+                            <div class="order-value">${formattedDate}</div>
+                        </div>
+                        <div class="order-row">
+                            <div class="order-label">總金額：</div>
+                            <div class="order-value">NT$ ${order.totalAmount}</div>
+                        </div>
+                        <div class="order-row">
+                            <div class="order-label">付款方式：</div>
+                            <div class="order-value">${order.paymentMethod || '未指定'}</div>
+                        </div>
+                        <div class="order-row">
+                            <div class="order-label">訂單狀態：</div>
+                            <div class="order-value">${order.status || 'pending'}</div>
+                        </div>
+                        <div class="order-row">
+                            <div class="order-label"></div>
+                            <div class="order-value">
+                                <a href="order-tracking.html?id=${order._id}" class="track-order-btn">追蹤訂單</a>
+                            </div>
                         </div>
                     </div>
                 </div>
