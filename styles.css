@@ -2036,11 +2036,31 @@ main {
 }
 
 .order-item {
-    background-color: #fff;
+    background: linear-gradient(to right, #fff, #f9f5f0);
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.1);
+    margin-bottom: 20px;
+    padding: 25px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.order-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.15);
+}
+
+.order-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #8B4513;
+    opacity: 0.7;
 }
 
 .order-content {
@@ -2049,12 +2069,16 @@ main {
 
 .order-row {
     display: flex;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     align-items: center;
+    position: relative;
 }
 
 .order-row:last-child {
     margin-bottom: 0;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #e0e0e0;
 }
 
 .order-label {
@@ -2063,39 +2087,69 @@ main {
     font-size: 14px;
     text-align: right;
     padding-right: 15px;
+    font-weight: 500;
+    opacity: 0.8;
 }
 
 .order-value {
     color: #333;
     flex: 1;
     font-size: 14px;
+    padding: 4px 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.order-row:hover .order-value {
+    background-color: rgba(255, 255, 255, 0.9);
 }
 
 .track-order-btn {
-    background-color: #8B4513;
+    background: linear-gradient(135deg, #8B4513, #A0522D);
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     color: white;
     display: inline-block;
     font-size: 14px;
-    margin-top: 10px;
-    padding: 8px 16px;
+    font-weight: 500;
+    padding: 10px 20px;
     text-decoration: none;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.2);
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: block;
+    margin-top: 15px;
 }
 
 .track-order-btn:hover {
-    background-color: #693310;
+    background: linear-gradient(135deg, #A0522D, #8B4513);
     color: white;
     text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
+}
+
+.track-order-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.2);
+}
+
+.order-footer {
+    position: relative;
+    padding-bottom: 50px;  /* 為按鈕留出空間 */
 }
 
 /* 訂單狀態樣式 */
-.order-status {
-    border-radius: 12px;
+.order-value .status {
     display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
     font-size: 12px;
-    padding: 4px 8px;
+    font-weight: 500;
+    text-transform: uppercase;
 }
 
 .status-pending {

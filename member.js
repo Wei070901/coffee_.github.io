@@ -177,7 +177,9 @@ class MemberSystem {
                         </div>
                         <div class="order-row">
                             <div class="order-label">訂單狀態：</div>
-                            <div class="order-value">${order.status || 'pending'}</div>
+                            <div class="order-value">
+                                <span class="status status-${order.status || 'pending'}">${order.status || 'pending'}</span>
+                            </div>
                         </div>
                         <div class="order-row">
                             <div class="order-label"></div>
