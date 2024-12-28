@@ -50,7 +50,6 @@ const initializeProducts = async () => {
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('Connected to MongoDB');
-    // 連接成功後初始化產品數據
     await initializeProducts();
   })
   .catch(err => console.error('MongoDB connection error:', err));
@@ -68,7 +67,8 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:3002',
     'http://localhost:5500',
-    'https://coffee-github-io.onrender.com'  // 替換成你的 Render 域名
+    'https://coffee-github-io.onrender.com',  // Render 域名
+    'https://coffee-github-io.onrender.com'   // 確保包含完整域名
 ];
 
 app.use(cors({
@@ -101,7 +101,7 @@ app.use(session({
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: 'lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
 }));
 
@@ -128,8 +128,8 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Visit your website at http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Visit your website at http://localhost:${PORT}`);
 });

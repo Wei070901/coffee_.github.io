@@ -2,11 +2,11 @@
 const config = {
     // 開發環境
     development: {
-        apiUrl: 'http://localhost:3002'
+        apiUrl: 'http://localhost:10000'
     },
     // 生產環境
     production: {
-        apiUrl: 'https://coffee-github-io.onrender.com'  // 你的 Render 應用 URL
+        apiUrl: 'https://coffee-github-io.onrender.com'
     }
 };
 

@@ -31,18 +31,50 @@ const auth = async (req, res, next) => {
 // Register
 router.post('/register', async (req, res) => {
   try {
+    console.log('Received registration request:', req.body);
     const { email, password, name, address, phone } = req.body;
+    
+    // 基本驗證
+    if (!email || !password || !name) {
+      console.log('Missing required fields');
+      return res.status(400).json({ error: '請填寫所有必要欄位' });
+    }
+
+    // 驗證電子郵件格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log('Invalid email format');
+      return res.status(400).json({ error: '請輸入有效的電子郵件地址' });
+    }
+
+    // 驗證密碼長度
+    if (password.length < 6) {
+      console.log('Password too short');
+      return res.status(400).json({ error: '密碼長度必須至少為 6 個字符' });
+    }
     
     // 檢查是否已存在相同的電子郵件
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('Email already exists:', email);
       return res.status(400).json({ error: '此電子郵件已被註冊' });
     }
     
+    // 創建新用戶
     const user = new User({ email, password, name, address, phone });
-    await user.save();
+    console.log('Creating new user:', { email, name, address, phone });
     
+    await user.save();
+    console.log('User saved successfully');
+    
+    // 生成 JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    
+    // 設置 session
+    req.session.userId = user._id;
+    req.session.isAdmin = user.role === 'admin';
+    
+    // 返回用戶信息和 token
     res.status(201).json({ 
       user: {
         _id: user._id,
@@ -51,12 +83,16 @@ router.post('/register', async (req, res) => {
         role: user.role,
         address: user.address,
         phone: user.phone
-      }, 
+      },
       token 
     });
+    
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ 
+      error: '註冊過程中發生錯誤',
+      details: error.message 
+    });
   }
 });
 

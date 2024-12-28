@@ -4,110 +4,161 @@ const API_BASE_URL = config.apiUrl;
 
 // 處理 API 響應
 const handleResponse = async (response) => {
+    const data = await response.json();
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Something went wrong');
+        console.error('API Error:', data);
+        throw new Error(data.error || 'Something went wrong');
     }
-    return response.json();
+    return data;
 };
 
 // API 請求工具
 const api = {
     // 認證相關
     auth: {
-        login: async (credentials) => {
-            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(credentials)
-            });
-            return handleResponse(response);
+        register: async (userData) => {
+            try {
+                console.log('Sending register request:', userData);
+                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(userData)
+                });
+                const result = await handleResponse(response);
+                console.log('Register response:', result);
+                if (result.token) {
+                    localStorage.setItem('token', result.token);
+                }
+                return result;
+            } catch (error) {
+                console.error('Register error:', error);
+                throw error;
+            }
         },
 
-        register: async (userData) => {
-            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userData)
-            });
-            return handleResponse(response);
+        login: async (credentials) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(credentials)
+                });
+                const result = await handleResponse(response);
+                if (result.token) {
+                    localStorage.setItem('token', result.token);
+                }
+                return result;
+            } catch (error) {
+                console.error('Login error:', error);
+                throw error;
+            }
         },
 
         getProfile: async () => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            return handleResponse(response);
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get profile error:', error);
+                throw error;
+            }
         },
 
-        updateProfile: async (profileData) => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(profileData)
-            });
-            return handleResponse(response);
+        logout: async () => {
+            try {
+                localStorage.removeItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Logout error:', error);
+                throw error;
+            }
         }
     },
 
     // 產品相關
     products: {
         getAll: async () => {
-            const response = await fetch(`${API_BASE_URL}/api/products`);
-            return handleResponse(response);
-        },
-
-        getOne: async (productId) => {
-            const response = await fetch(`${API_BASE_URL}/api/products/${productId}`);
-            return handleResponse(response);
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/products`);
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get products error:', error);
+                throw error;
+            }
         }
     },
 
     // 訂單相關
     orders: {
         create: async (orderData) => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/api/orders`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(orderData)
-            });
-            return handleResponse(response);
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(orderData)
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Create order error:', error);
+                throw error;
+            }
         },
 
         getMyOrders: async () => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/api/orders`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            return handleResponse(response);
-        },
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get orders error:', error);
+                throw error;
+            }
+        }
+    },
 
-        getOrder: async (orderId) => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            return handleResponse(response);
+    // 聯繫相關
+    contact: {
+        submit: async (contactData) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(contactData)
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Submit contact error:', error);
+                throw error;
+            }
         }
     }
 };
