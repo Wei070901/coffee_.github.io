@@ -1,3 +1,5 @@
+import config from './js/config.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     // 從 URL 獲取訂單 ID
     const urlParams = new URLSearchParams(window.location.search);
@@ -11,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // 從後端獲取訂單資訊
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3002/api/orders/${orderId}`, {
+        const response = await fetch(`${config.apiUrl}/orders/${orderId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

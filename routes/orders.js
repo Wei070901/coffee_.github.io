@@ -111,11 +111,11 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 });
 
-// 獲取特定訂單
-router.get('/:orderId', authMiddleware, async (req, res) => {
+// 獲取單個訂單
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const order = await Order.findOne({
-            _id: req.params.orderId,
+            _id: req.params.id,
             user: req.user._id
         }).populate('items.product');
 
@@ -125,8 +125,7 @@ router.get('/:orderId', authMiddleware, async (req, res) => {
 
         res.json(order);
     } catch (error) {
-        console.error('獲取訂單詳情失敗:', error);
-        res.status(500).json({ error: '獲取訂單詳情失敗' });
+        res.status(500).json({ error: '獲取訂單失敗' });
     }
 });
 
