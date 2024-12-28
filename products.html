@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有商品 - 咖啡香</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <!-- 左側 Logo -->
+            <div class="logo">
+                <a href="index.html">咖啡香</a>
+            </div>
+        
+            <!-- 手機版漢堡選單 -->
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        
+            <!-- 中間導航連結 -->
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="products.html">商品</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li><a href="contact.html">聯絡我們</a></li>
+                </ul>
+            </div>
+        
+            <!-- 右側功能圖標 -->
+            <div class="nav-icons">
+                <div class="member-icon">
+                    <a href="member.html">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="products-page">
+        <div class="products-header">
+            <h1>所有商品</h1>
+            <div class="filters">
+                <select id="sortFilter">
+                    <option value="default">預設排序</option>
+                    <option value="price-low">價格由低到高</option>
+                    <option value="price-high">價格由高到低</option>
+                    <option value="name">名稱排序</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="products-grid">
+            <!-- 商品卡片將由 JavaScript 動態添加 -->
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 咖啡香. 版權所有.</p>
+    </footer>
+
+    <!-- 購物車彈窗 -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>購物車</h3>
+                <button class="close-cart" id="closeCart">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- 購物車項目將由 JavaScript 動態添加 -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    總計: <span id="cartTotal">NT$ 0</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn">結帳</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="products.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結帳 - 咖啡香</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <!-- 左側 Logo -->
+            <div class="logo">
+                <a href="index.html">咖啡香</a>
+            </div>
+        
+            <!-- 手機版漢堡選單 -->
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        
+            <!-- 中間導航連結 -->
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="products.html">商品</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li><a href="contact.html">聯絡我們</a></li>
+                </ul>
+            </div>
+        
+            <!-- 右側功能圖標 -->
+            <div class="nav-icons">
+                <div class="member-icon">
+                    <a href="member.html">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="checkout-page">
+        <div class="checkout-layout">
+            <!-- 左側訂單摘要 -->
+            <div class="order-sidebar">
+                <div class="order-summary">
+                    <h3>訂單摘要</h3>
+                    <div class="order-items" id="sidebarOrderItems">
+                        <!-- 訂單項目將由 JavaScript 動態添加 -->
+                    </div>
+                    <div class="order-total">
+                        <div class="subtotal">
+                            <span>小計</span>
+                            <span id="sidebarSubtotal">NT$ 0</span>
+                        </div>
+                        <div class="shipping">
+                            <span>運費</span>
+                            <span>NT$ 0</span>
+                        </div>
+                        <div class="total">
+                            <span>總計</span>
+                            <span id="sidebarTotal">NT$ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側結帳流程 -->
+            <div class="checkout-main">
+                <!-- 步驟指示器 -->
+                <div class="checkout-steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-title">填寫資料</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-title">付款方式</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-title">確認訂單</div>
+                    </div>
+                </div>
+
+                <!-- 結帳步驟內容 -->
+                <div class="checkout-content">
+                    <!-- 步驟一：填寫資料 -->
+                    <div id="step1" class="checkout-step" style="display: block;">
+                        <div class="checkout-form">
+                            <h2>收件資訊</h2>
+                            <div class="form-group">
+                                <label for="name">姓名</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">電話</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">電子郵件</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <button type="button" class="next-step-btn">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 步驟二：付款方式 -->
+                    <div id="step2" class="checkout-step" style="display: none;">
+                        <h2>付款方式</h2>
+                        <div class="payment-methods">
+                            <div class="payment-method">
+                                <input type="radio" id="cash-taipei" name="payment" value="cash-taipei">
+                                <label for="cash-taipei">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    現金-台北車站
+                                </label>
+                            </div>
+                            <div class="payment-method">
+                                <input type="radio" id="cash-sanchong" name="payment" value="cash-sanchong">
+                                <label for="cash-sanchong">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    現金-三重商工
+                                </label>
+                            </div>
+                        </div>
+                        <div class="step-buttons">
+                            <button type="button" class="prev-step-btn">上一步</button>
+                            <button type="button" class="next-step-btn">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 步驟三：確認訂單 -->
+                    <div id="step3" class="checkout-step" style="display: none;">
+                        <h2>確認訂單</h2>
+                        <div class="order-confirmation">
+                            <!-- 訂單資訊將由 JavaScript 動態填入 -->
+                        </div>
+                        <div class="step-buttons">
+                            <button type="button" class="prev-step-btn">上一步</button>
+                            <button type="button" class="submit-order">確認訂購</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 咖啡香. 版權所有.</p>
+    </footer>
+    <script src="checkout.js"></script>
+    <!-- 訂購成功頁面 -->
+    <div class="success-page" style="display: none;">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="success-message">
+                <h2>訂購完成</h2>
+                <p>感謝您的購買，我們將盡快為您準備商品</p>
+            </div>
+            <div class="order-info">
+                <div class="info-item">
+                    <label>訂單編號</label>
+                    <div id="orderNumber" class="info-value"></div>
+                </div>
+                <div class="info-item">
+                    <label>訂單金額</label>
+                    <div id="orderAmount" class="info-value"></div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <a href="member.html" class="action-btn primary">查看訂單</a>
+                <a href="products.html" class="action-btn secondary">繼續購物</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>關於我們 - 咖啡香</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <!-- 左側 Logo -->
+            <div class="logo">
+                <a href="index.html">咖啡香</a>
+            </div>
+        
+            <!-- 手機版漢堡選單 -->
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        
+            <!-- 中間導航連結 -->
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="products.html">商品</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li><a href="contact.html">聯絡我們</a></li>
+                </ul>
+            </div>
+        
+            <!-- 右側功能圖標 -->
+            <div class="nav-icons">
+                <div class="member-icon">
+                    <a href="member.html">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="about-page">
+        <section class="about-hero">
+            <h1>關於咖啡香</h1>
+            <p>用心為您挑選世界各地的優質咖啡豆</p>
+        </section>
+
+        <section class="about-content">
+            <div class="about-story">
+                <h2>我們的故事</h2>
+                <p>成立於2020年，咖啡香致力於為您提供來自世界各地的優質咖啡豆。我們親自走訪產地，與農場建立直接的合作關係，確保每一顆咖啡豆都符合我們的品質要求。</p>
+                <div class="story-image">
+                    <img src="https://via.placeholder.com/600x400" alt="咖啡莊園">
+                </div>
+            </div>
+
+            <div class="our-values">
+                <h2>我們的理念</h2>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <i class="fas fa-coffee"></i>
+                        <h3>品質至上</h3>
+                        <p>每批咖啡豆都經過專業杯測師品評，確保最佳風味。</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-handshake"></i>
+                        <h3>公平貿易</h3>
+                        <p>與咖啡農建立合作夥伴關係，確保他們獲得合理報酬。</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-leaf"></i>
+                        <h3>永續經營</h3>
+                        <p>支持環保種植方式，為地球盡一份心力。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="our-team">
+                <h2>專業團隊</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <img src="https://via.placeholder.com/200" alt="烘焙師">
+                        <h3>王大明</h3>
+                        <p>首席烘焙師</p>
+                        <p>擁有10年咖啡烘焙經驗</p>
+                    </div>
+                    <div class="team-member">
+                        <img src="https://via.placeholder.com/200" alt="杯測師">
+                        <h3>李小華</h3>
+                        <p>專業杯測師</p>
+                        <p>國際咖啡品鑑師認證</p>
+                    </div>
+                    <div class="team-member">
+                        <img src="https://via.placeholder.com/200" alt="採購專員">
+                        <h3>張小美</h3>
+                        <p>咖啡採購專員</p>
+                        <p>專門負責產地直接採購</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 咖啡香. 版權所有.</p>
+    </footer>
+
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>購物車</h3>
+                <button class="close-cart" id="closeCart">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- 購物車項目將由 JavaScript 動態添加 -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    總計: <span id="cartTotal">NT$ 0</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn">結帳</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

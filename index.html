@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精品咖啡豆專賣店</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <!-- 左側 Logo -->
+            <div class="logo">
+                <a href="index.html">咖啡香</a>
+            </div>
+        
+            <!-- 手機版漢堡選單 -->
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        
+            <!-- 中間導航連結 -->
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="products.html">商品</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li><a href="contact.html">聯絡我們</a></li>
+                </ul>
+            </div>
+        
+            <!-- 右側功能圖標 -->
+            <div class="nav-icons">
+                <div class="member-icon">
+                    <a href="member.html">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <h1>精選咖啡豆</h1>
+            <p>來自世界各地的優質咖啡豆</p>
+        </section>
+
+        <section id="products">
+            <h2>熱門商品</h2>
+            <div class="coffee-grid" id="productGrid">
+                <!-- 商品將由 JavaScript 動態添加 -->
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="about-container">
+                <div class="about-text">
+                    <h2>關於咖啡香</h2>
+                    <p>成立於2020年，咖啡香致力於為您提供來自世界各地的優質咖啡豆。我們親自走訪產地，與農場建立直接的合作關係，確保每一顆咖啡豆都符合我們的品質要求。</p>
+                    <div class="features">
+                        <div class="feature">
+                            <i class="fas fa-coffee"></i>
+                            <h3>嚴選品質</h3>
+                            <p>每批咖啡豆都經過專業杯測師品評</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-shipping-fast"></i>
+                            <h3>新鮮烘焙</h3>
+                            <p>下單後24小時內現烘現送</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-heart"></i>
+                            <h3>用心服務</h3>
+                            <p>專業的咖啡師為您解答各種疑問</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="https://via.placeholder.com/400x600" alt="咖啡烘焙過程">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 咖啡香. 版權所有.</p>
+    </footer>
+
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>購物車</h3>
+                <button class="close-cart" id="closeCart">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- 購物車項目將由 JavaScript 動態添加 -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    總計: <span id="cartTotal">NT$ 0</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn">結帳</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="js/home-products.js"></script>
+</body>
+</html>

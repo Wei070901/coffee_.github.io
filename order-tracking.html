@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單追蹤 - 咖啡香</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <!-- 左側 Logo -->
+            <div class="logo">
+                <a href="index.html">咖啡香</a>
+            </div>
+        
+            <!-- 手機版漢堡選單 -->
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        
+            <!-- 中間導航連結 -->
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="products.html">商品</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li><a href="contact.html">聯絡我們</a></li>
+                </ul>
+            </div>
+        
+            <!-- 右側功能圖標 -->
+            <div class="nav-icons">
+                <div class="member-icon">
+                    <a href="member.html">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="tracking-page">
+        <div class="tracking-container">
+            <h1>訂單追蹤</h1>
+            
+            <!-- 訂單資訊 -->
+            <div class="order-info">
+                <div class="order-header">
+                    <div>
+                        <h2>訂單編號：<span id="trackingOrderNumber"></span></h2>
+                        <p>訂購日期：<span id="orderDate"></span></p>
+                    </div>
+                    <div class="order-amount">
+                        總金額：<span id="trackingOrderAmount"></span>
+                    </div>
+                </div>
+
+                <!-- 訂單狀態追蹤 -->
+                <div class="tracking-status">
+                    <div class="status-step active">
+                        <div class="step-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="step-info">
+                            <h3>訂單成立</h3>
+                            <p id="orderPlacedTime"></p>
+                        </div>
+                    </div>
+                    <div class="status-step">
+                        <div class="step-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="step-info">
+                            <h3>準備出貨</h3>
+                            <p id="processingTime"></p>
+                        </div>
+                    </div>
+                    <div class="status-step">
+                        <div class="step-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="step-info">
+                            <h3>預約成功</h3>
+                            <p id="shippingTime"></p>
+                        </div>
+                    </div>
+                    <div class="status-step">
+                        <div class="step-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-info">
+                            <h3>已取貨</h3>
+                            <p id="deliveredTime"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 訂單商品列表 -->
+                <div class="order-items" id="trackingOrderItems">
+                    <!-- 商品列表將由 JavaScript 動態添加 -->
+                </div>
+
+                <!-- 收件資訊 -->
+                <div class="delivery-info">
+                    <h3>收件資訊</h3>
+                    <div id="deliveryDetails">
+                        <!-- 收件資訊將由 JavaScript 動態添加 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="tracking-actions">
+                <button onclick="window.location.href='index.html'" class="back-to-home">
+                    <i class="fas fa-arrow-left"></i>
+                    返回首頁
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 咖啡香. 版權所有.</p>
+    </footer>
+
+    <script src="order-tracking.js"></script>
+</body>
+</html>
