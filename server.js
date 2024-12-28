@@ -74,6 +74,24 @@ app.use(cors({
 // 解析 JSON
 app.use(express.json());
 
+// 調試中間件 - 記錄所有請求
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    console.log('Origin:', req.headers.origin);
+    console.log('Authorization:', req.headers.authorization);
+    
+    // 確保 CORS 響應頭總是被設置
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
 // Session 配置
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
@@ -93,14 +111,6 @@ app.use(session({
 
 // 設置靜態文件服務
 app.use(express.static(__dirname));
-
-// 調試中間件 - 記錄所有請求
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    console.log('Session:', req.session);
-    console.log('Headers:', req.headers);
-    next();
-});
 
 // API Routes
 app.use('/api/auth', authRoutes);

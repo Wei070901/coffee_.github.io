@@ -123,8 +123,12 @@ router.get('/:id', authMiddleware, async (req, res) => {
             return res.status(404).json({ error: '找不到訂單' });
         }
 
+        // 設置 CORS 頭
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Credentials', 'true');
         res.json(order);
     } catch (error) {
+        console.error('獲取訂單失敗:', error);
         res.status(500).json({ error: '獲取訂單失敗' });
     }
 });
