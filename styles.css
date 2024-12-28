@@ -2109,6 +2109,12 @@ main {
     color: #721c24;
 }
 
+.order-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 15px;
+}
+
 .track-order-btn {
     background: linear-gradient(135deg, #8B4513, #A0522D);
     border: none;
