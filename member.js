@@ -159,13 +159,9 @@ class MemberSystem {
 
         const nameElement = document.getElementById('memberName');
         const emailElement = document.getElementById('memberEmail');
-        const phoneElement = document.getElementById('memberPhone');
-        const addressElement = document.getElementById('memberAddress');
 
-        if (nameElement) nameElement.textContent = this.currentUser.name || '';
-        if (emailElement) emailElement.textContent = this.currentUser.email || '';
-        if (phoneElement) phoneElement.textContent = this.currentUser.phone || '';
-        if (addressElement) addressElement.textContent = this.currentUser.address || '';
+        if (nameElement) nameElement.textContent = '姓名：' + (this.currentUser.name || '');
+        if (emailElement) emailElement.textContent = '電子郵件：' + (this.currentUser.email || '');
     }
 
     async checkLoginStatus() {
