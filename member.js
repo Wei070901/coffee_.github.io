@@ -155,38 +155,36 @@ class MemberSystem {
         const orderHTML = orders.map(order => {
             const orderDate = new Date(order.createdAt);
             const formattedDate = `${orderDate.getFullYear()}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
+            const orderNumber = `CF${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${order._id.slice(-6)}`;
+
+            // 轉換付款方式為中文
+            const paymentMethodMap = {
+                'cash-taipei': '台北取貨付款',
+                'credit-card': '信用卡',
+                'line-pay': 'Line Pay'
+            };
+            const paymentMethod = paymentMethodMap[order.paymentMethod] || order.paymentMethod;
+
+            // 轉換訂單狀態為中文
+            const statusMap = {
+                'pending': '處理中',
+                'processing': '製作中',
+                'completed': '已完成',
+                'cancelled': '已取消'
+            };
+            const status = statusMap[order.status] || order.status;
             
             return `
                 <div class="order-item">
-                    <div class="order-content">
-                        <div class="order-row">
-                            <div class="order-label">訂單編號：</div>
-                            <div class="order-value">CF${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${order._id.slice(-6)}</div>
-                        </div>
-                        <div class="order-row">
-                            <div class="order-label">訂購時間：</div>
-                            <div class="order-value">${formattedDate}</div>
-                        </div>
-                        <div class="order-row">
-                            <div class="order-label">總金額：</div>
-                            <div class="order-value">NT$ ${order.totalAmount}</div>
-                        </div>
-                        <div class="order-row">
-                            <div class="order-label">付款方式：</div>
-                            <div class="order-value">${order.paymentMethod || '未指定'}</div>
-                        </div>
-                        <div class="order-row">
-                            <div class="order-label">訂單狀態：</div>
-                            <div class="order-value">
-                                <span class="status status-${order.status || 'pending'}">${order.status || 'pending'}</span>
-                            </div>
-                        </div>
-                        <div class="order-row">
-                            <div class="order-label"></div>
-                            <div class="order-value">
-                                <a href="order-tracking.html?id=${order._id}" class="track-order-btn">追蹤訂單</a>
-                            </div>
-                        </div>
+                    <div class="order-info">
+                        <span class="order-detail">訂單編號：${orderNumber}</span>
+                        <span class="order-detail">訂購時間：${formattedDate}</span>
+                        <span class="order-detail">總金額：NT$ ${order.totalAmount}</span>
+                        <span class="order-detail">付款方式：${paymentMethod}</span>
+                        <span class="order-detail status-tag status-${order.status || 'pending'}">${status}</span>
+                    </div>
+                    <div class="order-actions">
+                        <a href="order-tracking.html?id=${order._id}" class="track-order-btn">追蹤訂單</a>
                     </div>
                 </div>
             `;
