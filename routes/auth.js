@@ -99,25 +99,37 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
     
     // 驗證請求數據
     if (!email || !password) {
+      console.log('Missing credentials');
       return res.status(400).json({ error: '請提供電子郵件和密碼' });
     }
 
     const user = await User.findOne({ email });
+    console.log('User found:', user ? 'Yes' : 'No');
     
     if (!user) {
       return res.status(401).json({ error: '無效的登入憑證' });
     }
 
     const isMatch = await user.comparePassword(password);
+    console.log('Password match:', isMatch ? 'Yes' : 'No');
+    
     if (!isMatch) {
       return res.status(401).json({ error: '無效的登入憑證' });
     }
     
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    console.log('Token generated');
+
+    // 設置 session
+    req.session.userId = user._id;
+    req.session.isAdmin = user.role === 'admin';
+    
+    console.log('Sending response');
     res.json({ 
       user: {
         _id: user._id,
@@ -132,6 +144,26 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: '登入失敗，請稍後再試' });
+  }
+});
+
+// Check login status
+router.get('/check-status', auth, async (req, res) => {
+  try {
+    console.log('Checking status for user:', req.user._id);
+    res.json({
+      user: {
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role,
+        address: req.user.address,
+        phone: req.user.phone
+      }
+    });
+  } catch (error) {
+    console.error('Status check error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 

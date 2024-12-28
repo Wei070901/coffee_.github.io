@@ -274,8 +274,6 @@ class MemberSystem {
 
             try {
                 console.log('Sending login request to:', `${this.apiUrl}/auth/login`);
-                console.log('Login credentials:', credentials);
-                
                 const response = await fetch(`${this.apiUrl}/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -289,21 +287,34 @@ class MemberSystem {
                 const data = await response.json();
                 console.log('Login response data:', data);
 
-                if (response.ok) {
-                    console.log('Login successful');
-                    localStorage.setItem('token', data.token);
-                    this.token = data.token;
-                    this.currentUser = data.user;
-                    
-                    // 確保所有必要的用戶資料都存在
-                    if (!this.currentUser || !this.currentUser._id) {
-                        throw new Error('Invalid user data received');
-                    }
-                    
-                    console.log('Showing member dashboard');
+                if (!response.ok) {
+                    throw new Error(data.error || '登入失敗');
+                }
+
+                if (!data.token) {
+                    console.error('No token received from server');
+                    throw new Error('登入失敗：未收到認證令牌');
+                }
+
+                console.log('Login successful, saving token');
+                localStorage.setItem('token', data.token);
+                this.token = data.token;
+
+                if (!data.user) {
+                    console.error('No user data received from server');
+                    throw new Error('登入失敗：未收到用戶資料');
+                }
+
+                this.currentUser = data.user;
+                console.log('Current user set:', this.currentUser);
+                
+                // 直接重新導向到會員中心頁面
+                if (window.location.pathname.endsWith('/member.html')) {
+                    console.log('Already on member page, showing dashboard');
                     this.showMemberDashboard();
                 } else {
-                    throw new Error(data.error || '登入失敗');
+                    console.log('Redirecting to member page');
+                    window.location.href = '/member.html';
                 }
             } catch (error) {
                 console.error('Login error:', error);
@@ -323,6 +334,8 @@ class MemberSystem {
     async checkLoginStatus() {
         try {
             const token = localStorage.getItem('token');
+            console.log('Checking token:', token ? 'Token exists' : 'No token');
+            
             if (!token) {
                 console.log('No token found');
                 return false;
@@ -336,18 +349,42 @@ class MemberSystem {
                 credentials: 'include'
             });
 
-            console.log('Login status response:', response.status);
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Login status data:', data);
-                this.token = token;
-                this.currentUser = data.user;
-                return true;
+            console.log('Check status response:', response.status);
+            if (!response.ok) {
+                console.log('Check status failed');
+                this.logout();
+                return false;
             }
-            return false;
+
+            const data = await response.json();
+            console.log('Check status data:', data);
+            
+            if (!data.user) {
+                console.log('No user data in response');
+                this.logout();
+                return false;
+            }
+
+            this.token = token;
+            this.currentUser = data.user;
+            console.log('Login status verified');
+            return true;
         } catch (error) {
             console.error('Check login status error:', error);
+            this.logout();
             return false;
+        }
+    }
+
+    logout() {
+        console.log('Logging out');
+        localStorage.removeItem('token');
+        this.token = null;
+        this.currentUser = null;
+        if (window.location.pathname.endsWith('/member.html')) {
+            this.showLoginForm();
+        } else {
+            window.location.href = '/member.html';
         }
     }
 
@@ -403,13 +440,6 @@ class MemberSystem {
 
         if (nameElement) nameElement.textContent = '姓名：' + (this.currentUser.name || '');
         if (emailElement) emailElement.textContent = '電子郵件：' + (this.currentUser.email || '');
-    }
-
-    logout() {
-        localStorage.removeItem('token');
-        this.token = null;
-        this.currentUser = null;
-        this.showLoginForm();
     }
 }
 
