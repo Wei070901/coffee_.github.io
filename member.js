@@ -221,7 +221,7 @@ class MemberSystem {
                         password: formData.get('password')
                     };
 
-                    console.log('Attempting login...');
+                    console.log('Attempting login with credentials:', credentials);
                     const response = await fetch(`${this.apiUrl}/auth/login`, {
                         method: 'POST',
                         headers: {
@@ -247,14 +247,16 @@ class MemberSystem {
                     this.token = data.token;
                     this.currentUser = data.user;
 
-                    console.log('Login successful, redirecting...');
-                    // 重新導向到會員中心
-                    window.location.href = '/member.html';
+                    console.log('Login successful, showing dashboard...');
+                    // 顯示會員中心
+                    this.showMemberDashboard();
                 } catch (error) {
                     console.error('Login error:', error);
                     alert(error.message || '登入失敗，請稍後再試');
                 }
             });
+        } else {
+            console.error('Login form not found');
         }
 
         // 設置註冊表單
@@ -362,6 +364,7 @@ class MemberSystem {
     }
 
     showMemberDashboard() {
+        console.log('Showing member dashboard...');
         if (!this.memberDashboard) {
             console.error('Member dashboard element not found');
             return;
@@ -373,20 +376,26 @@ class MemberSystem {
             return;
         }
 
-        console.log('Showing member dashboard for user:', this.currentUser.email);
+        console.log('Current user:', this.currentUser);
 
+        // 隱藏登入和註冊表單
         if (this.loginFormContainer) {
             this.loginFormContainer.style.display = 'none';
         }
         if (this.registerFormContainer) {
             this.registerFormContainer.style.display = 'none';
         }
-        
+
+        // 顯示會員中心
         this.memberDashboard.style.display = 'block';
+        
+        // 更新會員資訊
         this.updateMemberInfo();
         
         // 載入訂單記錄
         this.loadOrders();
+        
+        console.log('Member dashboard displayed successfully');
     }
 
     logout() {
@@ -420,14 +429,26 @@ class MemberSystem {
         if (this.memberDashboard) this.memberDashboard.style.display = 'none';
     }
 
-    async updateMemberInfo() {
-        if (!this.currentUser) return;
+    updateMemberInfo() {
+        console.log('Updating member info...');
+        if (!this.currentUser) {
+            console.error('No user data available for update');
+            return;
+        }
 
-        const nameElement = document.getElementById('memberName');
-        const emailElement = document.getElementById('memberEmail');
+        // 更新會員資訊顯示
+        const memberInfo = document.querySelector('.member-info');
+        if (memberInfo) {
+            memberInfo.innerHTML = `
+                <p><strong>姓名：</strong>${this.currentUser.name}</p>
+                <p><strong>信箱：</strong>${this.currentUser.email}</p>
+                <p><strong>電話：</strong>${this.currentUser.phone || '未設定'}</p>
+                <p><strong>地址：</strong>${this.currentUser.address || '未設定'}</p>
+            `;
+        }
 
-        if (nameElement) nameElement.textContent = '姓名：' + (this.currentUser.name || '');
-        if (emailElement) emailElement.textContent = '電子郵件：' + (this.currentUser.email || '');
+        // 填充個人資料表單
+        this.fillProfileForm();
     }
 }
 
