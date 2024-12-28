@@ -63,26 +63,12 @@ const contactRoutes = require('./routes/contact');
 
 const app = express();
 
-// CORS 設置必須在其他中間件之前
-const allowedOrigins = [
-    'http://localhost:3002',
-    'http://localhost:5500',
-    'https://coffee-github-io.onrender.com',  // Render 域名
-    'https://coffee-github-io.onrender.com'   // 確保包含完整域名
-];
-
+// 設置 CORS
 app.use(cors({
-    origin: function(origin, callback) {
-        // 允許沒有 origin 的請求（比如移動應用或 Postman）
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('不允許的來源'));
-        }
-    },
-    credentials: true
+    origin: ['https://coffee-github-io.onrender.com', 'http://localhost:5500'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // 解析 JSON
