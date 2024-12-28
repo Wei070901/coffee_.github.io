@@ -442,8 +442,6 @@ class MemberSystem {
             memberInfo.innerHTML = `
                 <p><strong>姓名：</strong>${this.currentUser.name}</p>
                 <p><strong>信箱：</strong>${this.currentUser.email}</p>
-                <p><strong>電話：</strong>${this.currentUser.phone || '未設定'}</p>
-                <p><strong>地址：</strong>${this.currentUser.address || '未設定'}</p>
             `;
         }
 
