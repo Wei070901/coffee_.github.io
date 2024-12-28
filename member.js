@@ -273,7 +273,9 @@ class MemberSystem {
             };
 
             try {
-                console.log('Sending login request:', credentials);
+                console.log('Sending login request to:', `${this.apiUrl}/auth/login`);
+                console.log('Login credentials:', credentials);
+                
                 const response = await fetch(`${this.apiUrl}/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -288,9 +290,17 @@ class MemberSystem {
                 console.log('Login response data:', data);
 
                 if (response.ok) {
+                    console.log('Login successful');
                     localStorage.setItem('token', data.token);
                     this.token = data.token;
                     this.currentUser = data.user;
+                    
+                    // 確保所有必要的用戶資料都存在
+                    if (!this.currentUser || !this.currentUser._id) {
+                        throw new Error('Invalid user data received');
+                    }
+                    
+                    console.log('Showing member dashboard');
                     this.showMemberDashboard();
                 } else {
                     throw new Error(data.error || '登入失敗');
@@ -299,6 +309,14 @@ class MemberSystem {
                 console.error('Login error:', error);
                 alert(error.message || '登入過程中發生錯誤');
             }
+        });
+        
+        // 設置登出按鈕
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.logout();
+            this.showLoginForm();
         });
     }
 
@@ -351,15 +369,30 @@ class MemberSystem {
     }
 
     showMemberDashboard() {
-        if (!this.loginFormContainer || !this.registerFormContainer || !this.memberDashboard) {
-            console.error('Required DOM elements not found');
+        console.log('Attempting to show member dashboard');
+        if (!this.memberDashboard) {
+            console.error('Member dashboard element not found');
             return;
         }
-        console.log('Showing member dashboard');
+        
+        console.log('Current user:', this.currentUser);
+        if (!this.currentUser) {
+            console.error('No user data available');
+            this.showLoginForm();
+            return;
+        }
+
         this.loginFormContainer.style.display = 'none';
         this.registerFormContainer.style.display = 'none';
         this.memberDashboard.style.display = 'block';
+        
+        // 更新會員資訊
         this.updateMemberInfo();
+        
+        // 預設顯示訂單記錄
+        this.switchDashboardContent('orderHistory');
+        
+        console.log('Member dashboard shown successfully');
     }
 
     async updateMemberInfo() {

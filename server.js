@@ -91,9 +91,11 @@ app.use(cors(corsOptions));
 
 // 調試中間件 - 記錄所有請求
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    console.log('Origin:', req.headers.origin);
-    console.log('Authorization:', req.headers.authorization);
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log('Body:', JSON.stringify(req.body, null, 2));
+    }
     next();
 });
 
@@ -126,6 +128,15 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
+
+// 錯誤處理中間件
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({ 
+        error: '伺服器錯誤',
+        message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試'
+    });
+});
 
 // 所有其他路由都返回 index.html
 app.get('*', (req, res) => {
