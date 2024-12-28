@@ -48,12 +48,14 @@ loginForm.addEventListener('submit', async (e) => {
         });
 
         const data = await response.json();
-        if (response.ok && data.success) {
+        if (response.ok && data.token) {
+            // 保存 token
+            localStorage.setItem('adminToken', data.token);
             loginContainer.style.display = 'none';
             adminPanel.style.display = 'block';
             loadOrders();
         } else {
-            alert(data.message || '帳號或密碼錯誤！');
+            alert(data.message || '登入失敗');
         }
     } catch (error) {
         console.error('登入失敗:', error);
@@ -64,43 +66,24 @@ loginForm.addEventListener('submit', async (e) => {
 // 載入訂單資料
 async function loadOrders() {
     try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
-            credentials: 'include',
             headers: {
-                'Accept': 'application/json'
-            }
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
         });
         
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || '獲取訂單失敗');
+            throw new Error('獲取訂單失敗');
         }
         
         const orders = await response.json();
-        console.log('Received orders:', orders); // 調試用
+        console.log('Rendering orders:', orders);
         renderOrders(orders);
     } catch (error) {
         console.error('載入訂單失敗:', error);
-        // 測試用假資料
-        const mockOrders = [
-            {
-                id: "ORD001",
-                date: "2024-12-28",
-                customerName: "王小明",
-                items: "商品A x1, 商品B x2",
-                total: 3000,
-                status: "pending"
-            },
-            {
-                id: "ORD002",
-                date: "2024-12-27",
-                customerName: "李小華",
-                items: "商品C x1",
-                total: 1500,
-                status: "shipped"
-            }
-        ];
-        renderOrders(mockOrders);
     }
 }
 
@@ -123,70 +106,58 @@ function formatOrderItems(items) {
 
 // 渲染訂單列表
 function renderOrders(orders) {
-    console.log('Rendering orders:', orders); // 調試用
-    if (!Array.isArray(orders)) {
-        console.error('訂單資料格式錯誤:', orders);
-        return;
-    }
-
-    const currentFilter = statusFilter.value;
-    const filteredOrders = currentFilter === 'all' 
-        ? orders 
-        : orders.filter(order => order.status === currentFilter);
-
-    orderTableBody.innerHTML = filteredOrders.map(order => {
-        try {
-            const orderId = order._id || order.id;
-            const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '未知日期';
-            const customerName = order.shippingInfo?.name || order.customerName || '未知客戶';
-            const orderItems = formatOrderItems(order.items);
-            const total = order.totalAmount || order.total || 0;
-            const status = order.status || 'pending';
-
-            // 生成訂單編號：訂單建立日期 + ObjectId 後6碼
-            const date = new Date(order.createdAt);
-            const orderDate2 = date.toISOString().slice(2,10).replace(/-/g, '');
-            const orderIdSuffix = order._id.slice(-6);
-            const formattedOrderId = `CO${orderDate2}${orderIdSuffix}`;
-
-            return `
-                <tr>
-                    <td>${formattedOrderId}</td>
-                    <td>${orderDate}</td>
-                    <td>${customerName}</td>
-                    <td>${orderItems}</td>
-                    <td>$${total}</td>
-                    <td>
-                        <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)">
-                            <option value="pending" ${status === 'pending' ? 'selected' : ''}>訂單成立</option>
-                            <option value="processing" ${status === 'processing' ? 'selected' : ''}>準備出貨</option>
-                            <option value="shipping" ${status === 'shipping' ? 'selected' : ''}>預約成功</option>
-                            <option value="completed" ${status === 'completed' ? 'selected' : ''}>已取貨</option>
-                            <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>已取消</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button onclick="viewOrderDetails('${orderId}')">查看詳情</button>
-                    </td>
-                </tr>
-            `;
-        } catch (error) {
-            console.error('渲染訂單行錯誤:', error);
-            return `
-                <tr>
-                    <td colspan="7">訂單資料錯誤</td>
-                </tr>
-            `;
+    try {
+        if (!Array.isArray(orders)) {
+            console.error('訂單資料格式錯誤:', orders);
+            return;
         }
-    }).join('');
+
+        orderTableBody.innerHTML = '';
+        orders.map(order => {
+            const row = document.createElement('tr');
+            const orderDate = order.createdAt ? new Date(order.createdAt) : new Date();
+            const formattedDate = orderDate.toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            row.innerHTML = `
+                <td>${order._id}</td>
+                <td>${formattedDate}</td>
+                <td>${order.user ? order.user.email : '訪客'}</td>
+                <td>${formatOrderItems(order.items)}</td>
+                <td>NT$ ${order.totalAmount}</td>
+                <td>
+                    <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>處理中</option>
+                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>準備中</option>
+                        <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>已出貨</option>
+                        <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>已送達</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>已取消</option>
+                    </select>
+                </td>
+                <td>
+                    <button onclick="viewOrderDetails('${order._id}')" class="btn-view">查看</button>
+                </td>
+            `;
+            orderTableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('渲染訂單行錯誤:', error);
+    }
 }
 
 // 更新訂單狀態
 async function updateOrderStatus(orderId, newStatus) {
     try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/status`, {
             method: 'PUT',
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
             credentials: 'include',
@@ -214,7 +185,11 @@ async function updateOrderStatus(orderId, newStatus) {
 // 查看訂單詳情
 async function viewOrderDetails(orderId) {
     try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
             credentials: 'include'
         });
         

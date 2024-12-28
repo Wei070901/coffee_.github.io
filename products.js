@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         name: '經典黑咖啡',
                         description: '使用優質阿拉比卡豆烘焙，口感醇厚',
                         price: 120,
-                        imageUrl: 'https://media.nownews.com/nn_media/thumbnail/2024/12/1734804762938-f4210842593f471883d7fc55a9f274fb-800x534.webp?unShow=false&waterMark=true',
+                        imageUrl: 'https://via.placeholder.com/300',
                         category: '咖啡',
                         stock: 100
                     },
