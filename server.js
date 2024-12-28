@@ -5,11 +5,53 @@ const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const Product = require('./models/Product');
+
+// 初始化產品數據
+const initializeProducts = async () => {
+    try {
+        const count = await Product.countDocuments();
+        if (count === 0) {
+            const products = [
+                {
+                    name: '經典黑咖啡',
+                    description: '使用優質阿拉比卡豆烘焙，口感醇厚',
+                    price: 120,
+                    imageUrl: 'https://via.placeholder.com/300',
+                    category: '咖啡',
+                    stock: 100
+                },
+                {
+                    name: '拿鐵咖啡',
+                    description: '完美比例的濃縮咖啡與蒸煮牛奶',
+                    price: 150,
+                    imageUrl: 'https://via.placeholder.com/300',
+                    category: '咖啡',
+                    stock: 100
+                },
+                {
+                    name: '卡布奇諾',
+                    description: '濃縮咖啡、蒸煮牛奶和奶泡的經典組合',
+                    price: 150,
+                    imageUrl: 'https://via.placeholder.com/300',
+                    category: '咖啡',
+                    stock: 100
+                }
+            ];
+            await Product.insertMany(products);
+            console.log('初始化產品數據完成');
+        }
+    } catch (error) {
+        console.error('初始化產品數據失敗:', error);
+    }
+};
 
 // 在路由之前先連接數據庫
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
+  .then(async () => {
     console.log('Connected to MongoDB');
+    // 連接成功後初始化產品數據
+    await initializeProducts();
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
