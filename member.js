@@ -1,5 +1,8 @@
+import config from './js/config.js';
+
 class MemberSystem {
     constructor() {
+        this.apiUrl = config.apiUrl;
         this.token = null;
         this.currentUser = null;
         this.isMemberPage = window.location.pathname.endsWith('/member.html');
@@ -24,10 +27,11 @@ class MemberSystem {
         if (token) {
             this.token = token;
             try {
-                const response = await fetch('http://localhost:3002/api/auth/profile', {
+                const response = await fetch(`${this.apiUrl}/api/auth/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
-                    }
+                    },
+                    credentials: 'include'
                 });
                 if (response.ok) {
                     const userData = await response.json();
@@ -75,7 +79,7 @@ class MemberSystem {
             };
 
             console.log('嘗試登入:', formData.email);
-            const response = await fetch('http://localhost:3002/api/auth/login', {
+            const response = await fetch(`${this.apiUrl}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -141,7 +145,7 @@ class MemberSystem {
                 name: document.getElementById('register-name').value
             };
 
-            const response = await fetch('http://localhost:3002/api/auth/register', {
+            const response = await fetch(`${this.apiUrl}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -241,7 +245,7 @@ class MemberSystem {
 
             switch (section) {
                 case 'orderHistory':
-                    response = await fetch('http://localhost:3002/api/orders/my-orders', { headers });
+                    response = await fetch(`${this.apiUrl}/api/orders/my-orders`, { headers });
                     if (!response.ok) {
                         if (response.status === 401) {
                             this.showNotification('登入已過期，請重新登入', 'error');
@@ -267,7 +271,7 @@ class MemberSystem {
 
     async loadProfileData() {
         try {
-            const response = await fetch('http://localhost:3002/api/auth/profile', {
+            const response = await fetch(`${this.apiUrl}/api/auth/profile`, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 }
