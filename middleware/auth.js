@@ -56,7 +56,57 @@ const requireAdmin = async (req, res, next) => {
     }
 };
 
+// 新的認證中間件
+const newAuth = async (req, res, next) => {
+    try {
+        // 獲取請求頭中的認證令牌
+        const authHeader = req.header('Authorization');
+        if (!authHeader) {
+            throw new Error('No authorization header');
+        }
+
+        const token = authHeader.replace('Bearer ', '');
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        // 驗證令牌
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded._id) {
+            throw new Error('Invalid token format');
+        }
+
+        // 查找用戶
+        const user = await User.findOne({
+            _id: decoded._id,
+            'tokens.token': token
+        });
+
+        if (!user) {
+            throw new Error('User not found or token invalid');
+        }
+
+        // 檢查令牌是否過期
+        const tokenData = jwt.decode(token);
+        if (tokenData.exp * 1000 < Date.now()) {
+            throw new Error('Token expired');
+        }
+
+        // 將用戶和令牌添加到請求對象
+        req.token = token;
+        req.user = user;
+        next();
+    } catch (error) {
+        console.error('Authentication error:', error.message);
+        res.status(401).json({
+            error: 'Please authenticate',
+            details: error.message
+        });
+    }
+};
+
 module.exports = {
     auth,
-    requireAdmin
+    requireAdmin,
+    newAuth
 };

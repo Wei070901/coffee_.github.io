@@ -208,6 +208,55 @@ class MemberSystem {
     }
 
     setupForms() {
+        // 設置登入表單
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                try {
+                    const formData = new FormData(loginForm);
+                    const credentials = {
+                        email: formData.get('email'),
+                        password: formData.get('password')
+                    };
+
+                    console.log('Attempting login...');
+                    const response = await fetch(`${this.apiUrl}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(credentials)
+                    });
+
+                    const data = await response.json();
+                    console.log('Login response:', data);
+
+                    if (!response.ok) {
+                        throw new Error(data.error || '登入失敗');
+                    }
+
+                    if (!data.token) {
+                        throw new Error('未收到認證令牌');
+                    }
+
+                    // 保存認證信息
+                    localStorage.setItem('token', data.token);
+                    this.token = data.token;
+                    this.currentUser = data.user;
+
+                    console.log('Login successful, redirecting...');
+                    // 重新導向到會員中心
+                    window.location.href = '/member.html';
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert(error.message || '登入失敗，請稍後再試');
+                }
+            });
+        }
+
         // 設置註冊表單
         const registerForm = document.getElementById('registerForm');
         registerForm?.addEventListener('submit', async (e) => {
@@ -262,66 +311,6 @@ class MemberSystem {
             }
         });
 
-        // 設置登入表單
-        const loginForm = document.getElementById('loginForm');
-        loginForm?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(loginForm);
-            const credentials = {
-                email: formData.get('email'),
-                password: formData.get('password')
-            };
-
-            try {
-                console.log('Sending login request to:', `${this.apiUrl}/auth/login`);
-                const response = await fetch(`${this.apiUrl}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(credentials)
-                });
-
-                console.log('Login response status:', response.status);
-                const data = await response.json();
-                console.log('Login response data:', data);
-
-                if (!response.ok) {
-                    throw new Error(data.error || '登入失敗');
-                }
-
-                if (!data.token) {
-                    console.error('No token received from server');
-                    throw new Error('登入失敗：未收到認證令牌');
-                }
-
-                console.log('Login successful, saving token');
-                localStorage.setItem('token', data.token);
-                this.token = data.token;
-
-                if (!data.user) {
-                    console.error('No user data received from server');
-                    throw new Error('登入失敗：未收到用戶資料');
-                }
-
-                this.currentUser = data.user;
-                console.log('Current user set:', this.currentUser);
-                
-                // 直接重新導向到會員中心頁面
-                if (window.location.pathname.endsWith('/member.html')) {
-                    console.log('Already on member page, showing dashboard');
-                    this.showMemberDashboard();
-                } else {
-                    console.log('Redirecting to member page');
-                    window.location.href = '/member.html';
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                alert(error.message || '登入過程中發生錯誤');
-            }
-        });
-        
         // 設置登出按鈕
         const logoutBtn = document.getElementById('logout-btn');
         logoutBtn?.addEventListener('click', (e) => {
@@ -334,40 +323,36 @@ class MemberSystem {
     async checkLoginStatus() {
         try {
             const token = localStorage.getItem('token');
-            console.log('Checking token:', token ? 'Token exists' : 'No token');
-            
+            console.log('Checking login status, token:', token ? 'exists' : 'not found');
+
             if (!token) {
-                console.log('No token found');
                 return false;
             }
 
-            console.log('Checking login status with token');
-            const response = await fetch(`${this.apiUrl}/auth/check-status`, {
+            const response = await fetch(`${this.apiUrl}/auth/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
                 credentials: 'include'
             });
 
-            console.log('Check status response:', response.status);
+            console.log('Profile response:', response.status);
+
             if (!response.ok) {
-                console.log('Check status failed');
-                this.logout();
-                return false;
+                throw new Error('Invalid token');
             }
 
-            const data = await response.json();
-            console.log('Check status data:', data);
-            
-            if (!data.user) {
-                console.log('No user data in response');
-                this.logout();
-                return false;
-            }
+            const userData = await response.json();
+            console.log('User data received:', userData);
 
             this.token = token;
-            this.currentUser = data.user;
-            console.log('Login status verified');
+            this.currentUser = userData;
+
+            // 如果在會員頁面，顯示會員資訊
+            if (this.isMemberPage) {
+                this.showMemberDashboard();
+            }
+
             return true;
         } catch (error) {
             console.error('Check login status error:', error);
@@ -376,12 +361,42 @@ class MemberSystem {
         }
     }
 
+    showMemberDashboard() {
+        if (!this.memberDashboard) {
+            console.error('Member dashboard element not found');
+            return;
+        }
+
+        if (!this.currentUser) {
+            console.error('No user data available');
+            this.showLoginForm();
+            return;
+        }
+
+        console.log('Showing member dashboard for user:', this.currentUser.email);
+
+        if (this.loginFormContainer) {
+            this.loginFormContainer.style.display = 'none';
+        }
+        if (this.registerFormContainer) {
+            this.registerFormContainer.style.display = 'none';
+        }
+        
+        this.memberDashboard.style.display = 'block';
+        this.updateMemberInfo();
+        
+        // 載入訂單記錄
+        this.loadOrders();
+    }
+
     logout() {
-        console.log('Logging out');
+        console.log('Logging out...');
         localStorage.removeItem('token');
         this.token = null;
         this.currentUser = null;
-        if (window.location.pathname.endsWith('/member.html')) {
+        
+        // 如果在會員頁面，顯示登入表單
+        if (this.isMemberPage) {
             this.showLoginForm();
         } else {
             window.location.href = '/member.html';
@@ -403,33 +418,6 @@ class MemberSystem {
         if (this.loginFormContainer) this.loginFormContainer.style.display = 'none';
         if (this.registerFormContainer) this.registerFormContainer.style.display = 'block';
         if (this.memberDashboard) this.memberDashboard.style.display = 'none';
-    }
-
-    showMemberDashboard() {
-        console.log('Attempting to show member dashboard');
-        if (!this.memberDashboard) {
-            console.error('Member dashboard element not found');
-            return;
-        }
-        
-        console.log('Current user:', this.currentUser);
-        if (!this.currentUser) {
-            console.error('No user data available');
-            this.showLoginForm();
-            return;
-        }
-
-        this.loginFormContainer.style.display = 'none';
-        this.registerFormContainer.style.display = 'none';
-        this.memberDashboard.style.display = 'block';
-        
-        // 更新會員資訊
-        this.updateMemberInfo();
-        
-        // 預設顯示訂單記錄
-        this.switchDashboardContent('orderHistory');
-        
-        console.log('Member dashboard shown successfully');
     }
 
     async updateMemberInfo() {
