@@ -184,7 +184,7 @@ class MemberSystem {
                         <span class="order-detail status-tag status-${order.status || 'pending'}">${status}</span>
                     </div>
                     <div class="order-actions">
-                        <a href="order-tracking.html?id=${order._id}" class="track-order-btn">追蹤訂單</a>
+                        <a href="order-tracking.html?orderId=${order._id}" class="track-order-btn">追蹤訂單</a>
                     </div>
                 </div>
             `;
