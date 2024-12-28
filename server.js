@@ -63,34 +63,37 @@ const contactRoutes = require('./routes/contact');
 
 const app = express();
 
-// 設置 CORS
-app.use(cors({
-    origin: ['https://coffee-github-io.onrender.com', 'http://localhost:5500'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// 設置 CORS - 必須在所有路由之前
+app.use((req, res, next) => {
+    const allowedOrigins = ['https://coffee-github-io.onrender.com', 'http://localhost:5500'];
+    const origin = req.headers.origin;
+    
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
 
-// 解析 JSON
-app.use(express.json());
+    // 處理 OPTIONS 請求
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    next();
+});
 
 // 調試中間件 - 記錄所有請求
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     console.log('Origin:', req.headers.origin);
     console.log('Authorization:', req.headers.authorization);
-    
-    // 確保 CORS 響應頭總是被設置
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
     next();
 });
+
+// 解析 JSON
+app.use(express.json());
 
 // Session 配置
 app.use(session({
