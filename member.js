@@ -441,7 +441,6 @@ class MemberSystem {
         if (memberInfo) {
             memberInfo.innerHTML = `
                 <p><strong>姓名：</strong>${this.currentUser.name}</p>
-                <br>
                 <p><strong>信箱：</strong>${this.currentUser.email}</p>
             `;
         }
