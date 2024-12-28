@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 // 在路由之前先連接數據庫
 mongoose.connect(process.env.MONGODB_URI)
@@ -25,7 +26,7 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:3002',
     'http://localhost:5500',
-    'https://你的render域名.onrender.com'  // 替換成你的 Render 域名
+    'https://coffee-github-io.onrender.com'  // 替換成你的 Render 域名
 ];
 
 app.use(cors({
@@ -48,10 +49,14 @@ app.use(express.json());
 // Session 配置
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI,
+        ttl: 24 * 60 * 60 // 1 day
+    }),
     cookie: {
-        secure: false, // 開發環境設為 false
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
         sameSite: 'lax'

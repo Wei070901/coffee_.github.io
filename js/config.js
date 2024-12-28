@@ -6,7 +6,7 @@ const config = {
     },
     // 生產環境
     production: {
-        apiUrl: 'https://你的render域名.onrender.com'  // 這裡需要替換成你的 Render 域名
+        apiUrl: 'https://coffee-github-io.onrender.com'  // 你的 Render 應用 URL
     }
 };
 
