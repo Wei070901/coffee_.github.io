@@ -4,7 +4,7 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', async function(req, res) {
     try {
         console.log('Registration request received:', req.body);
         const { email, password, name, address, phone } = req.body;
@@ -46,7 +46,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', async function(req, res) {
     try {
         console.log('Login request received:', req.body);
         const { email, password } = req.body;
@@ -84,7 +84,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Logout
-router.post('/logout', auth, async (req, res) => {
+router.post('/logout', auth, async function(req, res) {
     try {
         // 移除當前令牌
         req.user.tokens = req.user.tokens.filter(token => token.token !== req.token);
@@ -101,7 +101,7 @@ router.post('/logout', auth, async (req, res) => {
 });
 
 // Logout from all devices
-router.post('/logout-all', auth, async (req, res) => {
+router.post('/logout-all', auth, async function(req, res) {
     try {
         // 清除所有令牌
         req.user.tokens = [];
@@ -118,7 +118,7 @@ router.post('/logout-all', auth, async (req, res) => {
 });
 
 // Get user profile
-router.get('/profile', auth, async (req, res) => {
+router.get('/profile', auth, async function(req, res) {
     try {
         res.json(req.user);
     } catch (error) {
@@ -128,7 +128,7 @@ router.get('/profile', auth, async (req, res) => {
 });
 
 // Update user profile
-router.patch('/profile', auth, async (req, res) => {
+router.patch('/profile', auth, async function(req, res) {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['name', 'email', 'password', 'address', 'phone'];
     const isValidOperation = updates.every(update => allowedUpdates.includes(update));
