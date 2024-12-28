@@ -152,21 +152,40 @@ class MemberSystem {
             return;
         }
 
-        const orderHTML = orders.map(order => `
-            <div class="order-item">
-                <div class="order-header">
-                    <span>訂單編號：${order._id}</span>
-                    <span>訂購時間：${new Date(order.createdAt).toLocaleString()}</span>
+        const orderHTML = orders.map(order => {
+            // 格式化訂單編號
+            const orderDate = new Date(order.createdAt);
+            const orderNumber = `CF${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${order._id.slice(-6)}`;
+            
+            // 格式化日期時間
+            const formattedDate = orderDate.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            return `
+                <div class="order-item">
+                    <div class="order-header">
+                        <h4>訂單編號：${orderNumber}</h4>
+                        <span>訂購時間：${formattedDate}</span>
+                    </div>
+                    <div class="order-details">
+                        <p>總金額：NT$ ${order.totalAmount}</p>
+                        <p>付款方式：${order.paymentMethod}</p>
+                        <p>訂單狀態：${order.status || '處理中'}</p>
+                    </div>
+                    <div class="order-actions">
+                        <button onclick="window.location.href='order-tracking.html?id=${order._id}'" class="track-order-btn">
+                            追蹤訂單
+                        </button>
+                    </div>
                 </div>
-                <div class="order-details">
-                    <p>總金額：$${order.totalAmount}</p>
-                    <p>狀態：${order.status}</p>
-                </div>
-                <button onclick="window.location.href='order-tracking.html?id=${order._id}'" class="track-order-btn">
-                    追蹤訂單
-                </button>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         orderList.innerHTML = orderHTML;
     }

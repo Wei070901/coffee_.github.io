@@ -1212,18 +1212,6 @@ main {
     z-index: 1;
 }
 
-.logo a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.5rem;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.logo a:hover {
-    color: #c8a27a;
-}
-
 /* 商品頁����式 */
 .products-page {
     padding: 4rem 2rem;
@@ -2040,75 +2028,63 @@ main {
 
 /* 訂單列表樣式 */
 .order-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 1rem;
+    margin-top: 20px;
 }
 
 .order-item {
-    background: linear-gradient(135deg, #f9f5f0, #fff);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.order-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.order-item h4 {
-    color: #2c1810;
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
-}
-
-.order-item p {
-    color: #666;
-    margin: 0.3rem 0;
-}
-
-.order-card {
     background-color: #fff;
     border-radius: 8px;
-    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
 }
 
-.order-footer {
-    border-top: 1px solid #eee;
-    margin-top: 15px;
-    padding-top: 15px;
+.order-header {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
 }
 
-.order-footer p {
-    margin: 5px 0;
+.order-header h4 {
+    color: #333;
+    font-size: 1.1em;
+    margin: 0 0 8px 0;
 }
 
-/* 訂單追蹤按鈕樣式 */
+.order-header span {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.order-details {
+    margin-bottom: 15px;
+}
+
+.order-details p {
+    color: #555;
+    margin: 8px 0;
+}
+
+.order-actions {
+    text-align: right;
+}
+
 .track-order-btn {
     background-color: #8B4513;  /* 深咖啡色 */
-    color: white;
     border: none;
-    padding: 8px 16px;
     border-radius: 4px;
+    color: white;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    padding: 8px 16px;
+    transition: background-color 0.3s;
 }
 
 .track-order-btn:hover {
-    background-color: #A0522D;  /* 稍微淺一點的咖啡色 */
+    background-color: #693310;
 }
 
 .track-order-btn:active {
-    background-color: #6B3E26;  /* 更深的咖啡色 */
+    background-color: #6B3E26;
 }
 
 .order-footer {
