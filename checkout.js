@@ -268,12 +268,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('提交訂單資料:', orderData);
 
-            const response = await fetch('http://localhost:3002/api/orders', {
+            const apiUrl = window.location.hostname === 'localhost' 
+                ? 'http://localhost:3002' 
+                : 'https://coffee-github-io.onrender.com';
+
+            const response = await fetch(`${apiUrl}/api/orders`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
+                credentials: 'include',
                 body: JSON.stringify(orderData)
             });
 
