@@ -302,10 +302,46 @@ class MemberSystem {
         });
     }
 
+    async checkLoginStatus() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log('No token found');
+                return false;
+            }
+
+            console.log('Checking login status with token');
+            const response = await fetch(`${this.apiUrl}/auth/check-status`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                credentials: 'include'
+            });
+
+            console.log('Login status response:', response.status);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Login status data:', data);
+                this.token = token;
+                this.currentUser = data.user;
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Check login status error:', error);
+            return false;
+        }
+    }
+
     showLoginForm() {
-        if (this.loginFormContainer) this.loginFormContainer.style.display = 'block';
-        if (this.registerFormContainer) this.registerFormContainer.style.display = 'none';
-        if (this.memberDashboard) this.memberDashboard.style.display = 'none';
+        if (!this.loginFormContainer || !this.registerFormContainer || !this.memberDashboard) {
+            console.error('Required DOM elements not found');
+            return;
+        }
+        console.log('Showing login form');
+        this.loginFormContainer.style.display = 'block';
+        this.registerFormContainer.style.display = 'none';
+        this.memberDashboard.style.display = 'none';
     }
 
     showRegisterForm() {
@@ -315,14 +351,15 @@ class MemberSystem {
     }
 
     showMemberDashboard() {
-        if (this.loginFormContainer) this.loginFormContainer.style.display = 'none';
-        if (this.registerFormContainer) this.registerFormContainer.style.display = 'none';
-        if (this.memberDashboard) {
-            this.memberDashboard.style.display = 'block';
-            this.updateMemberInfo();
-            // 預設顯示訂單記錄
-            this.switchDashboardContent('orderHistory');
+        if (!this.loginFormContainer || !this.registerFormContainer || !this.memberDashboard) {
+            console.error('Required DOM elements not found');
+            return;
         }
+        console.log('Showing member dashboard');
+        this.loginFormContainer.style.display = 'none';
+        this.registerFormContainer.style.display = 'none';
+        this.memberDashboard.style.display = 'block';
+        this.updateMemberInfo();
     }
 
     async updateMemberInfo() {
@@ -333,37 +370,6 @@ class MemberSystem {
 
         if (nameElement) nameElement.textContent = '姓名：' + (this.currentUser.name || '');
         if (emailElement) emailElement.textContent = '電子郵件：' + (this.currentUser.email || '');
-    }
-
-    async checkLoginStatus() {
-        const token = localStorage.getItem('token');
-        if (!token) return false;
-
-        this.token = token;
-        try {
-            const response = await fetch(`${this.apiUrl}/auth/profile`, {
-                method: 'GET',
-                headers: {
-                    ...config.headers,
-                    'Authorization': `Bearer ${token}`
-                },
-                credentials: 'include',
-                mode: 'cors'
-            });
-
-            if (response.ok) {
-                const userData = await response.json();
-                this.currentUser = userData;
-                return true;
-            } else {
-                this.logout();
-                return false;
-            }
-        } catch (error) {
-            console.error('Check login status error:', error);
-            this.logout();
-            return false;
-        }
     }
 
     logout() {

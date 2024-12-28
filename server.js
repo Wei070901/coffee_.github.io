@@ -70,11 +70,10 @@ const corsOptions = {
             'https://coffee-github-io.onrender.com',
             'http://localhost:5500',
             'http://localhost:3000',
-            'http://localhost:10000',
-            process.env.RENDER_EXTERNAL_URL // 添加 Render 的外部 URL
-        ].filter(Boolean); // 移除空值
+            'http://localhost:10000'
+        ];
         
-        // 允許沒有 origin 的請求（如移動應用或直接訪問）
+        // 在開發環境中允許沒有 origin 的請求
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -82,7 +81,7 @@ const corsOptions = {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -113,8 +112,8 @@ app.use(session({
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
     }
 }));
 
