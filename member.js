@@ -95,7 +95,7 @@ class MemberSystem {
                 phone: formData.get('phone')
             };
 
-            const response = await fetch(`${this.apiUrl}/api/auth/profile`, {
+            const response = await fetch(`${this.apiUrl}/auth/profile`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ class MemberSystem {
 
     async loadOrders() {
         try {
-            const response = await fetch(`${this.apiUrl}/api/orders/my-orders`, {
+            const response = await fetch(`${this.apiUrl}/orders/my-orders`, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 },
@@ -234,7 +234,7 @@ class MemberSystem {
 
             try {
                 console.log('Sending registration request:', userData);
-                const response = await fetch(`${this.apiUrl}/api/auth/register`, {
+                const response = await fetch(`${this.apiUrl}/auth/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -274,7 +274,7 @@ class MemberSystem {
 
             try {
                 console.log('Sending login request:', credentials);
-                const response = await fetch(`${this.apiUrl}/api/auth/login`, {
+                const response = await fetch(`${this.apiUrl}/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -341,7 +341,7 @@ class MemberSystem {
 
         this.token = token;
         try {
-            const response = await fetch(`${this.apiUrl}/api/auth/profile`, {
+            const response = await fetch(`${this.apiUrl}/auth/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },

@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         const response = await fetch(`${config.apiUrl}/orders/${orderId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
-            }
+            },
+            credentials: 'include'
         });
 
         if (!response.ok) {
