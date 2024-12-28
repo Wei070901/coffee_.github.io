@@ -62,8 +62,7 @@ class MemberSystem {
                 name: formData.get('name'),
                 email: formData.get('email'),
                 password: password,
-                phone: formData.get('phone'),
-                address: formData.get('address') || ''
+                phone: formData.get('phone')
             };
 
             try {
