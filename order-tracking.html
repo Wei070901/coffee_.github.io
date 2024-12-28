@@ -14,35 +14,27 @@
             <div class="logo">
                 <a href="index.html">咖啡香</a>
             </div>
-        
+            
             <!-- 手機版漢堡選單 -->
             <div class="hamburger" id="hamburger">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-        
-            <!-- 中間導航連結 -->
+
+            <!-- 導航選單 -->
             <div class="nav-container">
                 <ul class="nav-links">
-                    <li><a href="index.html">首頁</a></li>
-                    <li><a href="products.html">商品</a></li>
+                    <li><a href="products.html">所有商品</a></li>
                     <li><a href="about.html">關於我們</a></li>
                     <li><a href="contact.html">聯絡我們</a></li>
                 </ul>
             </div>
-        
-            <!-- 右側功能圖標 -->
-            <div class="nav-icons">
-                <div class="member-icon">
-                    <a href="member.html">
-                        <i class="fas fa-user"></i>
-                    </a>
-                </div>
-                <div class="cart-icon" id="cartIcon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count">0</span>
-                </div>
+
+            <!-- 右側購物車 -->
+            <div class="cart-icon" id="cartIcon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">0</span>
             </div>
         </nav>
     </header>
@@ -51,77 +43,56 @@
         <div class="tracking-container">
             <h1>訂單追蹤</h1>
             
-            <!-- 訂單資訊 -->
-            <div class="order-info">
-                <div class="order-header">
-                    <div>
-                        <h2>訂單編號：<span id="trackingOrderNumber"></span></h2>
-                        <p>訂購日期：<span id="orderDate"></span></p>
+            <!-- 訂單狀態時間軸 -->
+            <div class="tracking-timeline">
+                <div class="timeline-item active">
+                    <div class="timeline-icon">
+                        <i class="fas fa-check"></i>
                     </div>
-                    <div class="order-amount">
-                        總金額：<span id="trackingOrderAmount"></span>
+                    <div class="timeline-content">
+                        <h3>訂單已成立</h3>
+                        <p class="time">2024/03/21 14:30</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item active">
+                    <div class="timeline-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>訂單處理中</h3>
+                        <p class="time">2024/03/21 15:00</p>
                     </div>
                 </div>
 
-                <!-- 訂單狀態追蹤 -->
-                <div class="tracking-status">
-                    <div class="status-step active">
-                        <div class="step-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="step-info">
-                            <h3>訂單成立</h3>
-                            <p id="orderPlacedTime"></p>
-                        </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon">
+                        <i class="fas fa-shipping-fast"></i>
                     </div>
-                    <div class="status-step">
-                        <div class="step-icon">
-                            <i class="fas fa-box"></i>
-                        </div>
-                        <div class="step-info">
-                            <h3>準備出貨</h3>
-                            <p id="processingTime"></p>
-                        </div>
-                    </div>
-                    <div class="status-step">
-                        <div class="step-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="step-info">
-                            <h3>預約成功</h3>
-                            <p id="shippingTime"></p>
-                        </div>
-                    </div>
-                    <div class="status-step">
-                        <div class="step-icon">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <div class="step-info">
-                            <h3>已取貨</h3>
-                            <p id="deliveredTime"></p>
-                        </div>
+                    <div class="timeline-content">
+                        <h3>配送中</h3>
+                        <p class="time">-</p>
                     </div>
                 </div>
 
-                <!-- 訂單商品列表 -->
-                <div class="order-items" id="trackingOrderItems">
-                    <!-- 商品列表將由 JavaScript 動態添加 -->
-                </div>
-
-                <!-- 收件資訊 -->
-                <div class="delivery-info">
-                    <h3>收件資訊</h3>
-                    <div id="deliveryDetails">
-                        <!-- 收件資訊將由 JavaScript 動態添加 -->
+                <div class="timeline-item">
+                    <div class="timeline-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>已送達</h3>
+                        <p class="time">-</p>
                     </div>
                 </div>
             </div>
 
-            <div class="tracking-actions">
-                <button onclick="window.location.href='index.html'" class="back-to-home">
-                    <i class="fas fa-arrow-left"></i>
-                    返回首頁
-                </button>
+            <!-- 訂單詳細資訊 -->
+            <div class="order-details">
+                <h2>訂單資訊</h2>
+                <div class="order-info">
+                    <p><strong>訂單編號:</strong> <span id="orderNumber">OD202403210001</span></p>
+                    <p><strong>預計送達:</strong> <span id="estimatedDelivery">2024/03/24</span></p>
+                </div>
             </div>
         </div>
     </main>
@@ -130,7 +101,7 @@
         <p>&copy; 2024 咖啡香. 版權所有.</p>
     </footer>
 
-    <script src="js/config.js" type="module"></script>
-    <script src="order-tracking.js" type="module"></script>
+    <script src="script.js"></script>
+    <script src="tracking.js"></script>
 </body>
 </html>
