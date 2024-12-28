@@ -121,7 +121,7 @@ class MemberSystem {
 
     async loadOrders() {
         try {
-            const response = await fetch(`${this.apiUrl}/api/orders`, {
+            const response = await fetch(`${this.apiUrl}/api/orders/my-orders`, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 },
