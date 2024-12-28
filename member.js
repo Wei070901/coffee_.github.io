@@ -22,8 +22,153 @@ class MemberSystem {
     async init() {
         this.setupFormSwitching();
         this.setupForms();
+        this.setupDashboardTabs();
         const isLoggedIn = await this.checkLoginStatus();
         isLoggedIn ? this.showMemberDashboard() : this.showLoginForm();
+    }
+
+    setupDashboardTabs() {
+        // 設置會員中心的選項卡切換
+        const options = document.querySelectorAll('.member-option');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除所有選項的 active 類
+                options.forEach(opt => opt.classList.remove('active'));
+                // 添加當前選項的 active 類
+                option.classList.add('active');
+                
+                // 獲取目標內容區域
+                const targetId = option.getAttribute('data-target');
+                this.switchDashboardContent(targetId);
+            });
+        });
+    }
+
+    switchDashboardContent(targetId) {
+        // 隱藏所有內容區域
+        const contents = document.querySelectorAll('.dashboard-content');
+        contents.forEach(content => {
+            content.style.display = 'none';
+        });
+
+        // 顯示目標內容區域
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+            targetContent.style.display = 'block';
+        }
+
+        // 如果切換到個人資料，則填充表單
+        if (targetId === 'profile') {
+            this.fillProfileForm();
+        }
+        // 如果切換到訂單記錄，則載入訂單
+        else if (targetId === 'orderHistory') {
+            this.loadOrders();
+        }
+    }
+
+    fillProfileForm() {
+        if (!this.currentUser) return;
+
+        const nameInput = document.getElementById('profileName');
+        const emailInput = document.getElementById('profileEmail');
+        const phoneInput = document.getElementById('profilePhone');
+
+        if (nameInput) nameInput.value = this.currentUser.name || '';
+        if (emailInput) emailInput.value = this.currentUser.email || '';
+        if (phoneInput) phoneInput.value = this.currentUser.phone || '';
+
+        // 設置個人資料表單的提交事件
+        const profileForm = document.getElementById('profileForm');
+        if (profileForm) {
+            profileForm.onsubmit = async (e) => {
+                e.preventDefault();
+                await this.updateProfile(new FormData(profileForm));
+            };
+        }
+    }
+
+    async updateProfile(formData) {
+        try {
+            const userData = {
+                name: formData.get('name'),
+                phone: formData.get('phone')
+            };
+
+            const response = await fetch(`${this.apiUrl}/api/auth/profile`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                credentials: 'include',
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                const updatedUser = await response.json();
+                this.currentUser = updatedUser;
+                this.updateMemberInfo();
+                alert('個人資料更新成功！');
+            } else {
+                throw new Error('更新個人資料失敗');
+            }
+        } catch (error) {
+            console.error('Update profile error:', error);
+            alert(error.message);
+        }
+    }
+
+    async loadOrders() {
+        try {
+            const response = await fetch(`${this.apiUrl}/api/orders`, {
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const orders = await response.json();
+                this.displayOrders(orders);
+            } else {
+                throw new Error('載入訂單失敗');
+            }
+        } catch (error) {
+            console.error('Load orders error:', error);
+            const orderList = document.querySelector('.order-list');
+            if (orderList) {
+                orderList.innerHTML = '<p class="error-message">載入訂單失敗</p>';
+            }
+        }
+    }
+
+    displayOrders(orders) {
+        const orderList = document.querySelector('.order-list');
+        if (!orderList) return;
+
+        if (!orders || orders.length === 0) {
+            orderList.innerHTML = '<p>目前沒有訂單記錄</p>';
+            return;
+        }
+
+        const orderHTML = orders.map(order => `
+            <div class="order-item">
+                <div class="order-header">
+                    <span>訂單編號：${order._id}</span>
+                    <span>訂購時間：${new Date(order.createdAt).toLocaleString()}</span>
+                </div>
+                <div class="order-details">
+                    <p>總金額：$${order.totalAmount}</p>
+                    <p>狀態：${order.status}</p>
+                </div>
+                <button onclick="window.location.href='order-tracking.html?id=${order._id}'" class="track-order-btn">
+                    追蹤訂單
+                </button>
+            </div>
+        `).join('');
+
+        orderList.innerHTML = orderHTML;
     }
 
     setupFormSwitching() {
@@ -150,8 +295,12 @@ class MemberSystem {
     showMemberDashboard() {
         if (this.loginFormContainer) this.loginFormContainer.style.display = 'none';
         if (this.registerFormContainer) this.registerFormContainer.style.display = 'none';
-        if (this.memberDashboard) this.memberDashboard.style.display = 'block';
-        this.updateMemberInfo();
+        if (this.memberDashboard) {
+            this.memberDashboard.style.display = 'block';
+            this.updateMemberInfo();
+            // 預設顯示訂單記錄
+            this.switchDashboardContent('orderHistory');
+        }
     }
 
     async updateMemberInfo() {
