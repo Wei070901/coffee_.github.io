@@ -117,26 +117,30 @@
 
             <div class="form-container" id="register-form" style="display: none;">
                 <h2>會員註冊</h2>
-                <form>
+                <form id="registerForm">
                     <div class="form-group">
                         <label for="register-name">姓名</label>
-                        <input type="text" id="register-name" required>
+                        <input type="text" id="register-name" name="name" required>
                     </div>
                     <div class="form-group">
                         <label for="register-email">電子郵件</label>
-                        <input type="email" id="register-email" required>
+                        <input type="email" id="register-email" name="email" required>
                     </div>
                     <div class="form-group">
                         <label for="register-password">密碼</label>
-                        <input type="password" id="register-password" required>
+                        <input type="password" id="register-password" name="password" required>
                     </div>
                     <div class="form-group">
                         <label for="register-confirm-password">確認密碼</label>
-                        <input type="password" id="register-confirm-password" required>
+                        <input type="password" id="register-confirm-password" name="confirm-password" required>
                     </div>
                     <div class="form-group">
                         <label for="register-phone">手機號碼</label>
-                        <input type="tel" id="register-phone" required>
+                        <input type="tel" id="register-phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-address">地址</label>
+                        <input type="text" id="register-address" name="address">
                     </div>
                     <button type="submit" class="submit-btn">註冊</button>
                 </form>
