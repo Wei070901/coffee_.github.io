@@ -69,13 +69,16 @@ const corsOptions = {
         const allowedOrigins = [
             'https://coffee-github-io.onrender.com',
             'http://localhost:5500',
-            'http://localhost:3000'
-        ];
+            'http://localhost:3000',
+            'http://localhost:10000',
+            process.env.RENDER_EXTERNAL_URL // 添加 Render 的外部 URL
+        ].filter(Boolean); // 移除空值
         
-        // 允許沒有 origin 的請求（如移動應用）
+        // 允許沒有 origin 的請求（如移動應用或直接訪問）
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.log('Blocked by CORS:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -133,5 +136,5 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log(`Visit your website at http://localhost:${PORT}`);
+    console.log(`Visit your website at ${process.env.NODE_ENV === 'production' ? 'your deployed URL' : 'http://localhost:' + PORT}`);
 });
