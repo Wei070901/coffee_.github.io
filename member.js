@@ -139,7 +139,7 @@ class MemberSystem {
             this.displayOrders(orders);
         } catch (error) {
             console.error('載入訂單失敗:', error);
-            const orderContainer = document.querySelector('.order-list');
+            const orderContainer = document.querySelector('.order-history');
             if (orderContainer) {
                 orderContainer.innerHTML = '<p class="error-message">載入訂單失敗，請稍後再試</p>';
             }
@@ -201,7 +201,7 @@ class MemberSystem {
                 <div class="order-card">
                     <div class="order-header">
                         <div class="order-info">
-                            <span class="order-id">訂單編號：${this.formatOrderId(order)}</span>
+                            <span class="order-id">訂單編號：${order._id}</span>
                             <span class="order-date">訂購時間：${orderDate}</span>
                         </div>
                         <div class="order-status">
