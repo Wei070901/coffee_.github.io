@@ -147,11 +147,19 @@ class MemberSystem {
     }
 
     formatOrderId(order) {
+        console.log('格式化訂單:', order);
+        if (!order || !order.createdAt || !order._id) {
+            console.error('無效的訂單數據:', order);
+            return '未知訂單編號';
+        }
+
         try {
             const date = new Date(order.createdAt);
             const orderDate = date.toISOString().slice(2,10).replace(/-/g, '');
             const orderIdSuffix = order._id.slice(-6);
-            return `CO${orderDate}${orderIdSuffix}`;
+            const formattedId = `CO${orderDate}${orderIdSuffix}`;
+            console.log('格式化結果:', formattedId);
+            return formattedId;
         } catch (error) {
             console.error('格式化訂單編號錯誤:', error);
             return order._id;
@@ -159,6 +167,7 @@ class MemberSystem {
     }
 
     displayOrders(orders) {
+        console.log('開始顯示訂單:', orders);
         const orderContainer = document.querySelector('.order-history');
         if (!orderContainer) return;
 
@@ -167,7 +176,9 @@ class MemberSystem {
             return;
         }
 
-        const ordersList = orders.map(order => {
+        try {
+            const ordersList = orders.map(order => {
+                console.log('處理訂單:', order);
                 const orderDate = new Date(order.createdAt).toLocaleDateString('zh-TW', {
                     year: 'numeric',
                     month: '2-digit',
@@ -176,19 +187,22 @@ class MemberSystem {
                     minute: '2-digit'
                 });
 
-            const orderItems = order.items.map(item => 
-                `<div class="order-item">
-                        <span class="item-name">${item.product.name}</span>
+                const orderItems = order.items.map(item => 
+                    `<div class="order-item">
+                        <span class="item-name">${item.product ? item.product.name : '商品已下架'}</span>
                         <span class="item-quantity">x ${item.quantity}</span>
                         <span class="item-price">NT$ ${item.price.toLocaleString()}</span>
-                </div>`
-            ).join('');
+                    </div>`
+                ).join('');
+
+                const formattedId = this.formatOrderId(order);
+                console.log('格式化後的訂單編號:', formattedId);
 
                 return `
                     <div class="order-card">
                         <div class="order-header">
                             <div class="order-info">
-                                <span class="order-id">訂單編號：${this.formatOrderId(order)}</span>
+                                <span class="order-id">訂單編號：${formattedId}</span>
                                 <span class="order-date">訂購時間：${orderDate}</span>
                             </div>
                             <div class="order-status">
@@ -207,9 +221,14 @@ class MemberSystem {
                         </div>
                     </div>
                 `;
-        }).join('');
+            }).join('');
 
-        orderContainer.innerHTML = ordersList;
+            console.log('生成的 HTML:', ordersList);
+            orderContainer.innerHTML = ordersList;
+        } catch (error) {
+            console.error('顯示訂單時發生錯誤:', error);
+            orderContainer.innerHTML = '<p class="error-message">顯示訂單時發生錯誤</p>';
+        }
     }
 
     getStatusText(status) {
