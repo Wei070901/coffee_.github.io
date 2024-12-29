@@ -121,6 +121,7 @@ class MemberSystem {
 
     async loadOrders() {
         try {
+            console.log('Loading orders...');
             const response = await fetch(`${this.apiUrl}/orders/my-orders`, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
@@ -129,13 +130,19 @@ class MemberSystem {
             });
 
             if (!response.ok) {
+                console.error('Response not ok:', response.status, response.statusText);
                 throw new Error('獲取訂單記錄失敗');
             }
 
             const orders = await response.json();
+            console.log('Orders loaded:', orders);
             this.displayOrders(orders);
         } catch (error) {
             console.error('載入訂單失敗:', error);
+            const orderContainer = document.querySelector('.order-history');
+            if (orderContainer) {
+                orderContainer.innerHTML = '<p class="error-message">載入訂單失敗，請稍後再試</p>';
+            }
         }
     }
 
@@ -169,13 +176,13 @@ class MemberSystem {
                     minute: '2-digit'
                 });
 
-                const orderItems = order.items.map(item => 
-                    `<div class="order-item">
+            const orderItems = order.items.map(item => 
+                `<div class="order-item">
                         <span class="item-name">${item.product.name}</span>
                         <span class="item-quantity">x ${item.quantity}</span>
                         <span class="item-price">NT$ ${item.price.toLocaleString()}</span>
-                    </div>`
-                ).join('');
+                </div>`
+            ).join('');
 
                 return `
                     <div class="order-card">
