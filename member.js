@@ -167,63 +167,52 @@ class MemberSystem {
     }
 
     displayOrders(orders) {
-        console.log('開始顯示訂單，詳細數據:', JSON.stringify(orders, null, 2));
         const orderContainer = document.querySelector('.order-list');
-        if (!orderContainer) {
-            console.error('找不到訂單容器元素');
-            return;
-        }
+        if (!orderContainer) return;
 
         if (!orders || orders.length === 0) {
-            console.log('沒有訂單數據');
-            orderContainer.innerHTML = '<p class="no-orders">尚無訂單記錄</p>';
+            orderContainer.innerHTML = '<p>目前沒有訂單記錄</p>';
             return;
         }
 
-        const ordersList = orders.map(order => {
-            const orderDate = new Date(order.createdAt).toLocaleDateString('zh-TW', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        const orderHTML = orders.map(order => {
+            const orderDate = new Date(order.createdAt);
+            const formattedDate = `${orderDate.getFullYear()}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
 
-            const orderItems = order.items.map(item => 
-                `<div class="order-item">
-                    <span class="item-name">${item.product ? item.product.name : '商品已下架'}</span>
-                    <span class="item-quantity">x ${item.quantity}</span>
-                    <span class="item-price">NT$ ${item.price.toLocaleString()}</span>
-                </div>`
-            ).join('');
+            // 轉換付款方式為中文
+            const paymentMethodMap = {
+                'cash-taipei': '台北取貨付款',
+                'credit-card': '信用卡',
+                'line-pay': 'Line Pay'
+            };
+            const paymentMethod = paymentMethodMap[order.paymentMethod] || order.paymentMethod;
 
+            // 轉換訂單狀態為中文
+            const statusMap = {
+                'pending': '處理中',
+                'processing': '製作中',
+                'completed': '已完成',
+                'cancelled': '已取消'
+            };
+            const status = statusMap[order.status] || order.status;
+            
             return `
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <span class="order-id">訂單編號：${order._id}</span>
-                            <span class="order-date">訂購時間：${orderDate}</span>
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge ${order.status}">${this.getStatusText(order.status)}</span>
-                        </div>
+                <div class="order-item">
+                    <div class="order-info">
+                        <span class="order-detail">訂單編號：${order._id}</span>
+                        <span class="order-detail">訂購時間：${formattedDate}</span>
+                        <span class="order-detail">總金額：NT$ ${order.totalAmount}</span>
+                        <span class="order-detail">付款方式：${paymentMethod}</span>
+                        <span class="order-detail status-tag status-${order.status || 'pending'}">${status}</span>
                     </div>
-                    <div class="order-items">
-                        ${orderItems}
-                    </div>
-                    <div class="order-footer">
-                        <div class="order-total">
-                            <span>總金額</span>
-                            <span class="total-amount">NT$ ${order.totalAmount.toLocaleString()}</span>
-                        </div>
-                        <button onclick="window.location.href='/order-tracking.html?orderId=${order._id}'" class="track-order-btn">追蹤訂單</button>
+                    <div class="order-actions">
+                        <a href="order-tracking.html?orderId=${order._id}" class="track-order-btn">追蹤訂單</a>
                     </div>
                 </div>
             `;
         }).join('');
 
-        console.log('生成的 HTML:', ordersList);
-        orderContainer.innerHTML = ordersList;
+        orderContainer.innerHTML = orderHTML;
     }
 
     getStatusText(status) {
