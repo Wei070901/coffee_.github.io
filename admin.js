@@ -67,23 +67,27 @@ loginForm.addEventListener('submit', async (e) => {
 async function loadOrders() {
     try {
         const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = '/login.html';
+            return;
+        }
+
         const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include'
+                'Authorization': `Bearer ${token}`
+            }
         });
-        
+
         if (!response.ok) {
-            throw new Error('獲取訂單失敗');
+            throw new Error('獲取訂單列表失敗');
         }
-        
+
         const orders = await response.json();
-        console.log('Rendering orders:', orders);
+        console.log('Loaded orders:', orders);
         renderOrders(orders);
     } catch (error) {
         console.error('載入訂單失敗:', error);
+        alert('載入訂單失敗，請稍後再試');
     }
 }
 
@@ -117,20 +121,32 @@ function formatOrderId(order) {
 
 // 渲染訂單列表
 function renderOrders(orders) {
-    console.log('Rendering orders:', orders);
     const orderTableBody = document.querySelector('#orderTable tbody');
-    if (!orderTableBody) return;
+    if (!orderTableBody) {
+        console.error('找不到訂單表格');
+        return;
+    }
+
+    if (!orders || !Array.isArray(orders) || orders.length === 0) {
+        orderTableBody.innerHTML = '<tr><td colspan="7" class="no-orders">目前沒有訂單</td></tr>';
+        return;
+    }
 
     const orderHTML = orders.map(order => {
         const orderDate = new Date(order.createdAt);
         const formattedDate = `${orderDate.getFullYear()}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
 
+        // 格式化商品資訊
+        const itemsInfo = order.items.map(item => 
+            `${item.product.name} x ${item.quantity}`
+        ).join(', ');
+
         return `
             <tr>
                 <td>${formatOrderId(order)}</td>
                 <td>${formattedDate}</td>
-                <td>${order.shippingInfo.name}</td>
-                <td>${order.shippingInfo.phone}</td>
+                <td>${order.shippingInfo?.name || ''}</td>
+                <td>${itemsInfo}</td>
                 <td>NT$ ${order.totalAmount.toLocaleString()}</td>
                 <td>
                     <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
@@ -168,19 +184,15 @@ async function updateOrderStatus(orderId, newStatus) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || '更新訂單狀態失敗');
+            throw new Error('更新訂單狀態失敗');
         }
 
         // 重新載入訂單列表
         loadOrders();
-        
-        // 顯示成功訊息
         alert('訂單狀態更新成功');
-
     } catch (error) {
         console.error('更新訂單狀態失敗:', error);
-        alert(error.message || '更新訂單狀態失敗，請稍後再試');
+        alert(error.message);
     }
 }
 
@@ -232,4 +244,7 @@ async function logout() {
 statusFilter.addEventListener('change', loadOrders);
 
 // 頁面載入時檢查登入狀態
-document.addEventListener('DOMContentLoaded', checkLoginStatus);
+document.addEventListener('DOMContentLoaded', () => {
+    checkLoginStatus();
+    loadOrders();
+});
