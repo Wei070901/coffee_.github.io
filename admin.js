@@ -104,6 +104,19 @@ function formatOrderItems(items) {
     }).join(', ');
 }
 
+// 格式化訂單編號
+function formatOrderId(order) {
+    try {
+        const date = new Date(order.createdAt);
+        const orderDate = date.toISOString().slice(2,10).replace(/-/g, '');
+        const orderIdSuffix = order._id.slice(-6);
+        return `CO${orderDate}${orderIdSuffix}`;
+    } catch (error) {
+        console.error('格式化訂單編號錯誤:', error);
+        return order._id;
+    }
+}
+
 // 渲染訂單列表
 function renderOrders(orders) {
     try {
@@ -125,11 +138,11 @@ function renderOrders(orders) {
             });
 
             row.innerHTML = `
-                <td>${order._id}</td>
+                <td>${formatOrderId(order)}</td>
                 <td>${formattedDate}</td>
                 <td>${order.user ? order.user.email : '訪客'}</td>
                 <td>${formatOrderItems(order.items)}</td>
-                <td>NT$ ${order.totalAmount}</td>
+                <td>NT$ ${order.totalAmount.toLocaleString()}</td>
                 <td>
                     <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
                         <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>處理中</option>
