@@ -2613,9 +2613,7 @@ main {
 .order-info {
     margin: 2rem 0;
     padding: 2rem;
-    background: #fff8f2;
     border-radius: 15px;
-    border: 1px solid rgba(200, 162, 122, 0.2);
 }
 
 .order-info p {
