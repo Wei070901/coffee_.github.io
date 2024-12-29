@@ -147,23 +147,13 @@ class MemberSystem {
     }
 
     formatOrderId(order) {
-        console.log('格式化訂單:', order);
-        if (!order || !order.createdAt || !order._id) {
-            console.error('無效的訂單數據:', order);
-            return '未知訂單編號';
-        }
-
-        try {
-            const date = new Date(order.createdAt);
-            const orderDate = date.toISOString().slice(2,10).replace(/-/g, '');
-            const orderIdSuffix = order._id.slice(-6);
-            const formattedId = `CO${orderDate}${orderIdSuffix}`;
-            console.log('格式化結果:', formattedId);
-            return formattedId;
-        } catch (error) {
-            console.error('格式化訂單編號錯誤:', error);
-            return order._id;
-        }
+        if (!order || !order._id) return '';
+        const date = new Date(order.createdAt);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const idSuffix = order._id.slice(-5);  // 取最後5個字符
+        return `CO${year}${month}${day}${idSuffix}`;
     }
 
     displayOrders(orders) {
@@ -199,7 +189,7 @@ class MemberSystem {
             return `
                 <div class="order-item">
                     <div class="order-info">
-                        <span class="order-detail">訂單編號：${order._id}</span>
+                        <span class="order-detail">訂單編號：${this.formatOrderId(order)}</span>
                         <span class="order-detail">訂購時間：${formattedDate}</span>
                         <span class="order-detail">總金額：NT$ ${order.totalAmount}</span>
                         <span class="order-detail">付款方式：${paymentMethod}</span>
