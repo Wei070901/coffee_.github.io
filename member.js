@@ -182,9 +182,9 @@ class MemberSystem {
                 'pending': '訂單成立',
                 'processing': '準備中',
                 'shipping': '預約成功',
-                'completed': '已收到',
+                'completed': '已收到'
             };
-            const status = statusMap[order.status] || order.status;
+            const status = statusMap[order.status] || '處理中';
             
             return `
                 <div class="order-item">
