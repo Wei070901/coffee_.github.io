@@ -3096,8 +3096,5 @@ main {
 @media screen and (max-width: 768px) {
     .order-info span {
         font-size: 1rem;
-        margin-right: 10px;
-        display: block;
-        margin-bottom: 5px;
     }
 }
