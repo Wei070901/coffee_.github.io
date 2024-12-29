@@ -121,9 +121,6 @@ class MemberSystem {
 
     async loadOrders() {
         try {
-            console.log('開始載入訂單...');
-            console.log('使用的 token:', this.token);
-            
             const response = await fetch(`${this.apiUrl}/orders/my-orders`, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
@@ -131,53 +128,39 @@ class MemberSystem {
                 credentials: 'include'
             });
 
-            console.log('訂單 API 回應狀態:', response.status);
-            const responseData = await response.json();
-            console.log('訂單 API 回應數據:', responseData);
-
             if (!response.ok) {
-                throw new Error(responseData.error || '獲取訂單記錄失敗');
+                throw new Error('獲取訂單記錄失敗');
             }
 
-            if (!Array.isArray(responseData)) {
-                console.error('回應數據不是陣列:', responseData);
-                throw new Error('訂單數據格式錯誤');
-            }
-
-            console.log(`成功載入 ${responseData.length} 筆訂單`);
-            this.displayOrders(responseData);
+            const orders = await response.json();
+            this.displayOrders(orders);
         } catch (error) {
             console.error('載入訂單失敗:', error);
-            const orderContainer = document.querySelector('.order-list');
-            if (orderContainer) {
-                orderContainer.innerHTML = `
-                    <div class="error-message">
-                        <p>載入訂單失敗</p>
-                        <p class="error-details">${error.message}</p>
-                        <button onclick="window.memberSystem.loadOrders()" class="retry-btn">重試</button>
-                    </div>
-                `;
-            }
+        }
+    }
+
+    formatOrderId(order) {
+        try {
+            const date = new Date(order.createdAt);
+            const orderDate = date.toISOString().slice(2,10).replace(/-/g, '');
+            const orderIdSuffix = order._id.slice(-6);
+            return `CO${orderDate}${orderIdSuffix}`;
+        } catch (error) {
+            console.error('格式化訂單編號錯誤:', error);
+            return order._id;
         }
     }
 
     displayOrders(orders) {
-        console.log('開始顯示訂單...');
-        const orderContainer = document.querySelector('.order-list');
-        if (!orderContainer) {
-            console.error('找不到訂單列表容器 (.order-list)');
-            return;
-        }
+        const orderContainer = document.querySelector('.order-history');
+        if (!orderContainer) return;
 
         if (!orders || orders.length === 0) {
-            console.log('沒有訂單記錄');
             orderContainer.innerHTML = '<p class="no-orders">尚無訂單記錄</p>';
             return;
         }
 
-        console.log(`準備顯示 ${orders.length} 筆訂單`);
         const ordersList = orders.map(order => {
-            try {
                 const orderDate = new Date(order.createdAt).toLocaleDateString('zh-TW', {
                     year: 'numeric',
                     month: '2-digit',
@@ -217,33 +200,9 @@ class MemberSystem {
                         </div>
                     </div>
                 `;
-            } catch (error) {
-                console.error('處理訂單時發生錯誤:', error, '訂單數據:', order);
-                return `
-                    <div class="order-card error">
-                        <div class="error-message">
-                            <p>顯示此訂單時發生錯誤</p>
-                            <p class="error-details">${error.message}</p>
-                        </div>
-                    </div>
-                `;
-            }
         }).join('');
 
-        console.log('完成訂單列表生成');
         orderContainer.innerHTML = ordersList;
-    }
-
-    formatOrderId(order) {
-        try {
-            const date = new Date(order.createdAt);
-            const orderDate = date.toISOString().slice(2,10).replace(/-/g, '');
-            const orderIdSuffix = order._id.slice(-6);
-            return `CO${orderDate}${orderIdSuffix}`;
-        } catch (error) {
-            console.error('格式化訂單編號錯誤:', error);
-            return order._id;
-        }
     }
 
     getStatusText(status) {
