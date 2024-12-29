@@ -106,110 +106,78 @@ function formatOrderItems(items) {
 
 // 格式化訂單編號
 function formatOrderId(order) {
-    try {
-        const date = new Date(order.createdAt);
-        const orderDate = date.toISOString().slice(2,10).replace(/-/g, '');
-        const orderIdSuffix = order._id.slice(-6);
-        return `CO${orderDate}${orderIdSuffix}`;
-    } catch (error) {
-        console.error('格式化訂單編號錯誤:', error);
-        return order._id;
-    }
+    if (!order || !order.createdAt || !order._id) return '';
+    const date = new Date(order.createdAt);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const idSuffix = order._id.slice(-5);
+    return `CO${year}${month}${day}${idSuffix}`;
 }
 
 // 渲染訂單列表
 function renderOrders(orders) {
-    try {
-        if (!Array.isArray(orders)) {
-            console.error('訂單資料格式錯誤:', orders);
-            return;
-        }
+    console.log('Rendering orders:', orders);
+    const orderTableBody = document.querySelector('#orderTable tbody');
+    if (!orderTableBody) return;
 
-        orderTableBody.innerHTML = '';
-        orders.map(order => {
-            const row = document.createElement('tr');
-            const orderDate = order.createdAt ? new Date(order.createdAt) : new Date();
-            const formattedDate = orderDate.toLocaleDateString('zh-TW', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+    const orderHTML = orders.map(order => {
+        const orderDate = new Date(order.createdAt);
+        const formattedDate = `${orderDate.getFullYear()}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
 
-            row.innerHTML = `
+        return `
+            <tr>
                 <td>${formatOrderId(order)}</td>
                 <td>${formattedDate}</td>
-                <td>${order.user ? order.user.email : '訪客'}</td>
-                <td>${formatOrderItems(order.items)}</td>
+                <td>${order.shippingInfo.name}</td>
+                <td>${order.shippingInfo.phone}</td>
                 <td>NT$ ${order.totalAmount.toLocaleString()}</td>
                 <td>
                     <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
-                        ${getOrderStatusOptions(order.status)}
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>訂單成立</option>
+                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>準備中</option>
+                        <option value="shipping" ${order.status === 'shipping' ? 'selected' : ''}>預約成功</option>
+                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>已收到</option>
                     </select>
                 </td>
                 <td>
-                    <button onclick="viewOrderDetails('${order._id}')" class="btn-view">查看</button>
+                    <button onclick="viewOrderDetails('${order._id}')" class="view-btn">查看詳情</button>
                 </td>
-            `;
-            orderTableBody.appendChild(row);
-        });
-    } catch (error) {
-        console.error('渲染訂單行錯誤:', error);
-    }
-}
+            </tr>
+        `;
+    }).join('');
 
-function getOrderStatusOptions(currentStatus) {
-    const statuses = [
-        { value: 'created', text: '訂單成立' },
-        { value: 'preparing', text: '準備中' },
-        { value: 'booked', text: '預約成功' },
-        { value: 'received', text: '已收到' }
-    ];
-
-    return statuses.map(status => 
-        `<option value="${status.value}" ${currentStatus === status.value ? 'selected' : ''}>
-            ${status.text}
-        </option>`
-    ).join('');
-}
-
-function getStatusText(status) {
-    const statusMap = {
-        'created': '訂單成立',
-        'preparing': '準備中',
-        'booked': '預約成功',
-        'received': '已收到'
-    };
-    return statusMap[status] || status;
+    orderTableBody.innerHTML = orderHTML;
 }
 
 // 更新訂單狀態
 async function updateOrderStatus(orderId, newStatus) {
     try {
         const token = localStorage.getItem('adminToken');
+        if (!token) {
+            throw new Error('請先登入');
+        }
+
         const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/status`, {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
-            credentials: 'include',
             body: JSON.stringify({ status: newStatus })
         });
-        
+
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || '更新失敗');
+            throw new Error(errorData.message || '更新訂單狀態失敗');
         }
 
-        const data = await response.json();
-        if (data.success) {
-            alert('訂單狀態更新成功！');
-            loadOrders(); // 重新載入訂單列表
-        } else {
-            throw new Error('更新失敗');
-        }
+        // 重新載入訂單列表
+        loadOrders();
+        
+        // 顯示成功訊息
+        alert('訂單狀態更新成功');
+
     } catch (error) {
         console.error('更新訂單狀態失敗:', error);
         alert(error.message || '更新訂單狀態失敗，請稍後再試');
