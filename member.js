@@ -178,8 +178,14 @@ class MemberSystem {
             const paymentMethod = paymentMethodMap[order.paymentMethod] || order.paymentMethod;
 
             // 轉換訂單狀態為中文
-            const status = this.getStatusText(order.status);
-
+            const statusMap = {
+                'created': '訂單成立',
+                'preparing': '準備中',
+                'booked': '預約成功',
+                'received': '已收到'
+            };
+            const status = statusMap[order.status] || order.status;
+            
             return `
                 <div class="order-item">
                     <div class="order-info">
@@ -187,7 +193,7 @@ class MemberSystem {
                         <span class="order-detail">訂購時間：${formattedDate}</span>
                         <span class="order-detail">總金額：NT$ ${order.totalAmount}</span>
                         <span class="order-detail">付款方式：${paymentMethod}</span>
-                        <span class="order-detail status-tag status-${order.status || 'pending'}">${status}</span>
+                        <span class="order-detail status-tag status-${order.status}">${status}</span>
                     </div>
                     <div class="order-actions">
                         <a href="order-tracking.html?orderId=${order._id}" class="track-order-btn">追蹤訂單</a>
