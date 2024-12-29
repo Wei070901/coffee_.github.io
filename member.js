@@ -128,69 +128,92 @@ class MemberSystem {
                 credentials: 'include'
             });
 
-            if (response.ok) {
-                const orders = await response.json();
-                this.displayOrders(orders);
-            } else {
-                throw new Error('載入訂單失敗');
+            if (!response.ok) {
+                throw new Error('獲取訂單記錄失敗');
             }
+
+            const orders = await response.json();
+            this.displayOrders(orders);
         } catch (error) {
-            console.error('Load orders error:', error);
-            const orderList = document.querySelector('.order-list');
-            if (orderList) {
-                orderList.innerHTML = '<p class="error-message">載入訂單失敗</p>';
-            }
+            console.error('載入訂單失敗:', error);
+        }
+    }
+
+    formatOrderId(order) {
+        try {
+            const date = new Date(order.createdAt);
+            const orderDate = date.toISOString().slice(2,10).replace(/-/g, '');
+            const orderIdSuffix = order._id.slice(-6);
+            return `CO${orderDate}${orderIdSuffix}`;
+        } catch (error) {
+            console.error('格式化訂單編號錯誤:', error);
+            return order._id;
         }
     }
 
     displayOrders(orders) {
-        const orderList = document.querySelector('.order-list');
-        if (!orderList) return;
+        const orderContainer = document.querySelector('.order-history');
+        if (!orderContainer) return;
 
         if (!orders || orders.length === 0) {
-            orderList.innerHTML = '<p>目前沒有訂單記錄</p>';
+            orderContainer.innerHTML = '<p class="no-orders">尚無訂單記錄</p>';
             return;
         }
 
-        const orderHTML = orders.map(order => {
-            const orderDate = new Date(order.createdAt);
-            const formattedDate = `${orderDate.getFullYear()}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
-            const orderNumber = `CF${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${order._id.slice(-6)}`;
+        const ordersList = orders.map(order => {
+            const orderDate = new Date(order.createdAt).toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
 
-            // 轉換付款方式為中文
-            const paymentMethodMap = {
-                'cash-taipei': '台北取貨付款',
-                'credit-card': '信用卡',
-                'line-pay': 'Line Pay'
-            };
-            const paymentMethod = paymentMethodMap[order.paymentMethod] || order.paymentMethod;
+            const orderItems = order.items.map(item => 
+                `<div class="order-item">
+                    <span class="item-name">${item.product.name}</span>
+                    <span class="item-quantity">x ${item.quantity}</span>
+                    <span class="item-price">NT$ ${item.price.toLocaleString()}</span>
+                </div>`
+            ).join('');
 
-            // 轉換訂單狀態為中文
-            const statusMap = {
-                'pending': '處理中',
-                'processing': '製作中',
-                'completed': '已完成',
-                'cancelled': '已取消'
-            };
-            const status = statusMap[order.status] || order.status;
-            
             return `
-                <div class="order-item">
-                    <div class="order-info">
-                        <span class="order-detail">訂單編號：${orderNumber}</span>
-                        <span class="order-detail">訂購時間：${formattedDate}</span>
-                        <span class="order-detail">總金額：NT$ ${order.totalAmount}</span>
-                        <span class="order-detail">付款方式：${paymentMethod}</span>
-                        <span class="order-detail status-tag status-${order.status || 'pending'}">${status}</span>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-id">訂單編號：${this.formatOrderId(order)}</span>
+                            <span class="order-date">訂購時間：${orderDate}</span>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge ${order.status}">${this.getStatusText(order.status)}</span>
+                        </div>
                     </div>
-                    <div class="order-actions">
-                        <a href="order-tracking.html?orderId=${order._id}" class="track-order-btn">追蹤訂單</a>
+                    <div class="order-items">
+                        ${orderItems}
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-total">
+                            <span>總金額</span>
+                            <span class="total-amount">NT$ ${order.totalAmount.toLocaleString()}</span>
+                        </div>
+                        <button onclick="window.location.href='/order-tracking.html?orderId=${order._id}'" class="track-order-btn">追蹤訂單</button>
                     </div>
                 </div>
             `;
         }).join('');
 
-        orderList.innerHTML = orderHTML;
+        orderContainer.innerHTML = ordersList;
+    }
+
+    getStatusText(status) {
+        const statusMap = {
+            'pending': '處理中',
+            'processing': '準備中',
+            'shipped': '已出貨',
+            'delivered': '已送達',
+            'cancelled': '已取消'
+        };
+        return statusMap[status] || status;
     }
 
     setupFormSwitching() {
