@@ -167,68 +167,63 @@ class MemberSystem {
     }
 
     displayOrders(orders) {
-        console.log('開始顯示訂單:', orders);
+        console.log('開始顯示訂單，詳細數據:', JSON.stringify(orders, null, 2));
         const orderContainer = document.querySelector('.order-history');
-        if (!orderContainer) return;
+        if (!orderContainer) {
+            console.error('找不到訂單容器元素');
+            return;
+        }
 
         if (!orders || orders.length === 0) {
+            console.log('沒有訂單數據');
             orderContainer.innerHTML = '<p class="no-orders">尚無訂單記錄</p>';
             return;
         }
 
-        try {
-            const ordersList = orders.map(order => {
-                console.log('處理訂單:', order);
-                const orderDate = new Date(order.createdAt).toLocaleDateString('zh-TW', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+        const ordersList = orders.map(order => {
+            const orderDate = new Date(order.createdAt).toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
 
-                const orderItems = order.items.map(item => 
-                    `<div class="order-item">
-                        <span class="item-name">${item.product ? item.product.name : '商品已下架'}</span>
-                        <span class="item-quantity">x ${item.quantity}</span>
-                        <span class="item-price">NT$ ${item.price.toLocaleString()}</span>
-                    </div>`
-                ).join('');
+            const orderItems = order.items.map(item => 
+                `<div class="order-item">
+                    <span class="item-name">${item.product ? item.product.name : '商品已下架'}</span>
+                    <span class="item-quantity">x ${item.quantity}</span>
+                    <span class="item-price">NT$ ${item.price.toLocaleString()}</span>
+                </div>`
+            ).join('');
 
-                const formattedId = this.formatOrderId(order);
-                console.log('格式化後的訂單編號:', formattedId);
-
-                return `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <div class="order-info">
-                                <span class="order-id">訂單編號：${formattedId}</span>
-                                <span class="order-date">訂購時間：${orderDate}</span>
-                            </div>
-                            <div class="order-status">
-                                <span class="status-badge ${order.status}">${this.getStatusText(order.status)}</span>
-                            </div>
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-id">訂單編號：${order._id}</span>
+                            <span class="order-date">訂購時間：${orderDate}</span>
                         </div>
-                        <div class="order-items">
-                            ${orderItems}
-                        </div>
-                        <div class="order-footer">
-                            <div class="order-total">
-                                <span>總金額</span>
-                                <span class="total-amount">NT$ ${order.totalAmount.toLocaleString()}</span>
-                            </div>
-                            <button onclick="window.location.href='/order-tracking.html?orderId=${order._id}'" class="track-order-btn">追蹤訂單</button>
+                        <div class="order-status">
+                            <span class="status-badge ${order.status}">${this.getStatusText(order.status)}</span>
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="order-items">
+                        ${orderItems}
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-total">
+                            <span>總金額</span>
+                            <span class="total-amount">NT$ ${order.totalAmount.toLocaleString()}</span>
+                        </div>
+                        <button onclick="window.location.href='/order-tracking.html?orderId=${order._id}'" class="track-order-btn">追蹤訂單</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
 
-            console.log('生成的 HTML:', ordersList);
-            orderContainer.innerHTML = ordersList;
-        } catch (error) {
-            console.error('顯示訂單時發生錯誤:', error);
-            orderContainer.innerHTML = '<p class="error-message">顯示訂單時發生錯誤</p>';
-        }
+        console.log('生成的 HTML:', ordersList);
+        orderContainer.innerHTML = ordersList;
     }
 
     getStatusText(status) {
