@@ -179,10 +179,10 @@ class MemberSystem {
 
             // 轉換訂單狀態為中文
             const statusMap = {
-                'created': '訂單成立',
-                'preparing': '準備中',
-                'booked': '預約成功',
-                'received': '已收到'
+                'pending': '訂單成立',
+                'processing': '準備中',
+                'shipping': '預約成功',
+                'completed': '已收到',
             };
             const status = statusMap[order.status] || order.status;
             
