@@ -103,6 +103,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             currentStatus.textContent = orderStatus[order.status] || '處理中';
         }
         
+        // 更新訂單追蹤狀態
+        updateOrderStatus(order);
+        
     } catch (error) {
         console.error('獲取訂單資訊失敗:', error);
         alert('獲取訂單資訊失敗，請稍後再試');
@@ -122,5 +125,26 @@ function updateOrderProgress(status) {
         } else {
             step.classList.remove('active');
         }
+    });
+}
+
+function updateOrderStatus(order) {
+    const statusSteps = [
+        { status: 'created', text: '訂單成立' },
+        { status: 'preparing', text: '準備中' },
+        { status: 'booked', text: '預約成功' },
+        { status: 'received', text: '已收到' }
+    ];
+
+    const currentStatusIndex = statusSteps.findIndex(step => step.status === order.status);
+    
+    const trackingSteps = document.querySelectorAll('.tracking-step');
+    trackingSteps.forEach((step, index) => {
+        if (index <= currentStatusIndex) {
+            step.classList.add('completed');
+        } else {
+            step.classList.remove('completed');
+        }
+        step.querySelector('.step-text').textContent = statusSteps[index].text;
     });
 }

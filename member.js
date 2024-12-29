@@ -178,14 +178,8 @@ class MemberSystem {
             const paymentMethod = paymentMethodMap[order.paymentMethod] || order.paymentMethod;
 
             // 轉換訂單狀態為中文
-            const statusMap = {
-                'pending': '處理中',
-                'processing': '製作中',
-                'completed': '已完成',
-                'cancelled': '已取消'
-            };
-            const status = statusMap[order.status] || order.status;
-            
+            const status = this.getStatusText(order.status);
+
             return `
                 <div class="order-item">
                     <div class="order-info">
@@ -207,11 +201,10 @@ class MemberSystem {
 
     getStatusText(status) {
         const statusMap = {
-            'pending': '處理中',
-            'processing': '準備中',
-            'shipped': '已出貨',
-            'delivered': '已送達',
-            'cancelled': '已取消'
+            'created': '訂單成立',
+            'preparing': '準備中',
+            'booked': '預約成功',
+            'received': '已收到'
         };
         return statusMap[status] || status;
     }

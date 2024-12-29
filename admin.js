@@ -145,11 +145,7 @@ function renderOrders(orders) {
                 <td>NT$ ${order.totalAmount.toLocaleString()}</td>
                 <td>
                     <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
-                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>處理中</option>
-                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>準備中</option>
-                        <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>已出貨</option>
-                        <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>已送達</option>
-                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>已取消</option>
+                        ${getOrderStatusOptions(order.status)}
                     </select>
                 </td>
                 <td>
@@ -161,6 +157,31 @@ function renderOrders(orders) {
     } catch (error) {
         console.error('渲染訂單行錯誤:', error);
     }
+}
+
+function getOrderStatusOptions(currentStatus) {
+    const statuses = [
+        { value: 'created', text: '訂單成立' },
+        { value: 'preparing', text: '準備中' },
+        { value: 'booked', text: '預約成功' },
+        { value: 'received', text: '已收到' }
+    ];
+
+    return statuses.map(status => 
+        `<option value="${status.value}" ${currentStatus === status.value ? 'selected' : ''}>
+            ${status.text}
+        </option>`
+    ).join('');
+}
+
+function getStatusText(status) {
+    const statusMap = {
+        'created': '訂單成立',
+        'preparing': '準備中',
+        'booked': '預約成功',
+        'received': '已收到'
+    };
+    return statusMap[status] || status;
 }
 
 // 更新訂單狀態
