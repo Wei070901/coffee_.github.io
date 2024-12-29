@@ -171,9 +171,8 @@ class MemberSystem {
 
             // 轉換付款方式為中文
             const paymentMethodMap = {
-                'cash-taipei': '台北取貨付款',
-                'credit-card': '信用卡',
-                'line-pay': 'Line Pay'
+                'cash-taipei': '台北車站取貨付款',
+                'cash-sanchong': '三重商工取貨付款',
             };
             const paymentMethod = paymentMethodMap[order.paymentMethod] || order.paymentMethod;
 
