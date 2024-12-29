@@ -121,7 +121,7 @@ function formatOrderId(order) {
 
 // 渲染訂單列表
 function renderOrders(orders) {
-    const orderTableBody = document.querySelector('#orderTable tbody');
+    const orderTableBody = document.querySelector('#orderTableBody');
     if (!orderTableBody) {
         console.error('找不到訂單表格');
         return;
