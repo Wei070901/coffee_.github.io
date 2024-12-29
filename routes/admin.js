@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const jwt = require('jsonwebtoken');
 const { requireAdmin } = require('../middleware/auth');
 
 // 管理員登入
@@ -10,16 +11,34 @@ router.post('/login', async (req, res) => {
         
         // 在實際應用中，這些憑證應該存儲在資料庫中並加密
         if (username === 'admin' && password === 'admin123') {
+            // 生成 JWT token
+            const token = jwt.sign(
+                { isAdmin: true },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+            
             req.session.isAdmin = true;
             await req.session.save();
             console.log('Admin login successful. Session:', req.session);
-            res.json({ success: true });
+            
+            res.json({
+                success: true,
+                token: token,
+                message: '登入成功'
+            });
         } else {
-            res.status(401).json({ success: false, message: '帳號或密碼錯誤' });
+            res.status(401).json({
+                success: false,
+                message: '帳號或密碼錯誤'
+            });
         }
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ success: false, message: '登入失敗' });
+        res.status(500).json({
+            success: false,
+            message: '登入失敗'
+        });
     }
 });
 

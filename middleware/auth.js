@@ -47,12 +47,27 @@ const requireAdmin = async (req, res, next) => {
             return next();
         }
 
+        // 檢查 JWT token
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.replace('Bearer ', '');
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                if (decoded.isAdmin) {
+                    console.log('Admin authenticated via JWT');
+                    return next();
+                }
+            } catch (error) {
+                console.error('JWT verification failed:', error);
+            }
+        }
+
         // 如果沒有管理員權限
         console.log('Admin authentication failed');
-        throw new Error('需要管理員權限');
+        res.status(401).json({ error: '需要管理員權限' });
     } catch (error) {
-        console.error('管理員認證失敗:', error);
-        res.status(403).json({ error: '需要管理員權限' });
+        console.error('Admin middleware error:', error);
+        res.status(500).json({ error: '伺服器錯誤' });
     }
 };
 
