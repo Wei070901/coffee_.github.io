@@ -120,7 +120,7 @@ app.use(session({
 }));
 
 // 設置靜態文件服務
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -129,6 +129,17 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 
+// 處理所有其他路由
+app.get('*', (req, res) => {
+    // 如果請求的是 admin.html，直接返回
+    if (req.path === '/admin.html') {
+        res.sendFile(path.join(__dirname, 'admin.html'));
+        return;
+    }
+    // 其他路由返回首頁
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // 錯誤處理中間件
 app.use((err, req, res, next) => {
     console.error('Error:', err);
@@ -136,11 +147,6 @@ app.use((err, req, res, next) => {
         error: '伺服器錯誤',
         message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試'
     });
-});
-
-// 所有其他路由都返回 index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 10000;
