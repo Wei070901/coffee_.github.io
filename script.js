@@ -224,6 +224,7 @@ async function loadPopularProducts() {
                         <h3>${product.name}</h3>
                         <p class="product-description">${product.description}</p>
                         <p class="product-price">NT$ ${product.price}</p>
+                        <p class="product-sales">銷售量：${product.totalSold} 件</p>
                         <button class="add-to-cart-btn" onclick="addToCart('${product._id}')">
                             加入購物車
                         </button>
