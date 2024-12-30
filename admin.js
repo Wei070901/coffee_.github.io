@@ -21,11 +21,13 @@ async function checkLoginStatus() {
             adminPanel.style.display = 'block';
             loadOrders();
         } else {
+            // 未登入時顯示登入表單
             loginContainer.style.display = 'block';
             adminPanel.style.display = 'none';
         }
     } catch (error) {
         console.error('檢查登入狀態失敗:', error);
+        // 發生錯誤時也顯示登入表單
         loginContainer.style.display = 'block';
         adminPanel.style.display = 'none';
     }
@@ -68,7 +70,9 @@ async function loadOrders() {
     try {
         const token = localStorage.getItem('adminToken');
         if (!token) {
-            window.location.href = '/login.html';
+            // 移除重定向，改為顯示登入表單
+            loginContainer.style.display = 'block';
+            adminPanel.style.display = 'none';
             return;
         }
 
