@@ -63,23 +63,10 @@ const contactRoutes = require('./routes/contact');
 
 const app = express();
 
-// 基本的 CORS 設置
+// CORS 配置
 const corsOptions = {
     origin: function (origin, callback) {
-        const allowedOrigins = [
-            'https://coffee-github-io.onrender.com',
-            'http://localhost:5500',
-            'http://localhost:3000',
-            'http://localhost:10000'
-        ];
-        
-        // 在開發環境中允許沒有 origin 的請求
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.log('Blocked by CORS:', origin);
-            callback(new Error('Not allowed by CORS'));
-        }
+        callback(null, true); // 允許所有來源
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -129,15 +116,16 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 
-// 處理所有其他路由
+// 特殊路由處理
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// 所有其他路由都返回 index.html
 app.get('*', (req, res) => {
-    // 如果請求的是 admin.html，直接返回
-    if (req.path === '/admin.html') {
-        res.sendFile(path.join(__dirname, 'admin.html'));
-        return;
+    if (req.path !== '/admin.html') {
+        res.sendFile(path.join(__dirname, 'index.html'));
     }
-    // 其他路由返回首頁
-    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // 錯誤處理中間件
