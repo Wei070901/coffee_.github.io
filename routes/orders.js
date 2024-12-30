@@ -194,27 +194,29 @@ router.get('/admin/:id', adminAuth, async (req, res) => {
 router.put('/:id/status', adminAuth, async (req, res) => {
   try {
     const { status } = req.body;
-    
-    // 驗證狀態值
-    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: '無效的訂單狀態' });
-    }
-
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    ).populate('user', 'name email')
-     .populate('items.product', 'name price imageUrl');
+    const order = await Order.findById(req.params.id).populate('items.product');
     
     if (!order) {
-      return res.status(404).json({ error: '找不到訂單' });
+      return res.status(404).json({ error: '訂單不存在' });
     }
+
+    // 如果訂單狀態更新為已完成，更新產品銷量
+    if (status === 'completed' && order.status !== 'completed') {
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(
+          item.product._id,
+          { $inc: { sales: item.quantity } }
+        );
+      }
+    }
+
+    order.status = status;
+    await order.save();
     
     res.json(order);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('更新訂單狀態失敗:', error);
+    res.status(500).json({ error: '更新訂單狀態失敗' });
   }
 });
 
