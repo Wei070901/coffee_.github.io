@@ -2,6 +2,18 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 
+// Get popular products (top 3 by sales)
+router.get('/popular', async (req, res) => {
+  try {
+    const popularProducts = await Product.find()
+      .sort({ sales: -1 })
+      .limit(3);
+    res.json(popularProducts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all products
 router.get('/', async (req, res) => {
   try {
