@@ -19,6 +19,11 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  sales: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
   imageUrl: String,
   category: String,
   createdAt: {
