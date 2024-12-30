@@ -205,39 +205,3 @@ document.querySelectorAll('.coffee-card button').forEach(button => {
         window.cart.addItem(product);
     });
 });
-
-// 載入熱門商品
-async function loadPopularProducts() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/products/popular`);
-        if (!response.ok) {
-            throw new Error('獲取熱門商品失敗');
-        }
-        const products = await response.json();
-        const popularProductsGrid = document.getElementById('popularProductsGrid');
-        
-        if (popularProductsGrid) {
-            popularProductsGrid.innerHTML = products.map(product => `
-                <div class="product-card">
-                    <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
-                    <div class="product-info">
-                        <h3>${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
-                        <p class="product-price">NT$ ${product.price}</p>
-                        <p class="product-sales">銷售量：${product.totalSold} 件</p>
-                        <button class="add-to-cart-btn" onclick="addToCart('${product._id}')">
-                            加入購物車
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-    } catch (error) {
-        console.error('載入熱門商品失敗:', error);
-    }
-}
-
-// 頁面載入時執行
-document.addEventListener('DOMContentLoaded', () => {
-    loadPopularProducts();
-});
