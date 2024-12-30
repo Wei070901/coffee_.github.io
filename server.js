@@ -74,8 +74,6 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-app.use(cors(corsOptions));
-
 // 調試中間件 - 記錄所有請求
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
@@ -106,8 +104,24 @@ app.use(session({
     }
 }));
 
-// 設置靜態文件服務
-app.use(express.static(path.join(__dirname)));
+// 設置 express 中間件
+app.use(express.urlencoded({ extended: true }));
+app.use(cors(corsOptions));
+
+// 首先處理 admin.html 路由
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// 設置靜態文件服務（排除 admin.html）
+app.use(express.static(path.join(__dirname), {
+    index: false,
+    setHeaders: function (res, path, stat) {
+        if (path.endsWith('admin.html')) {
+            res.set('Cache-Control', 'no-store');
+        }
+    }
+}));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -116,14 +130,11 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 
-// 特殊路由處理
-app.get('/admin.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-// 所有其他路由都返回 index.html
+// 最後處理其他所有路由
 app.get('*', (req, res) => {
-    if (req.path !== '/admin.html') {
+    if (req.path === '/admin.html') {
+        res.sendFile(path.join(__dirname, 'admin.html'));
+    } else {
         res.sendFile(path.join(__dirname, 'index.html'));
     }
 });
