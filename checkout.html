@@ -53,22 +53,17 @@
             <div class="order-sidebar">
                 <div class="order-summary">
                     <h3>訂單摘要</h3>
-                    <div class="order-items" id="sidebarOrderItems">
-                        <!-- 訂單項目將由 JavaScript 動態添加 -->
+                    <div class="summary-item">
+                        <span>小計</span>
+                        <span id="checkoutSubtotal">NT$ 0</span>
                     </div>
-                    <div class="order-total">
-                        <div class="subtotal">
-                            <span>小計</span>
-                            <span id="sidebarSubtotal">NT$ 0</span>
-                        </div>
-                        <div class="shipping">
-                            <span>運費</span>
-                            <span>NT$ 0</span>
-                        </div>
-                        <div class="total">
-                            <span>總計</span>
-                            <span id="sidebarTotal">NT$ 0</span>
-                        </div>
+                    <div class="summary-item discount">
+                        <span>折扣</span>
+                        <span id="checkoutDiscount">- NT$ 0</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>總計</span>
+                        <span id="checkoutTotal">NT$ 0</span>
                     </div>
                 </div>
             </div>
@@ -184,5 +179,8 @@
             </div>
         </div>
     </div>
+
+    <script src="script.js"></script>
+
 </body>
 </html>

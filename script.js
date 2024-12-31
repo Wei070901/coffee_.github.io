@@ -117,8 +117,6 @@ class ShoppingCart {
                 <div class="cart-item-info">
                     <h4>${item.name}</h4>
                     <p class="cart-item-price">NT$ ${item.price}</p>
-                    ${item.name === this.discountedProductName ? 
-                        `<p class="discount-info">買${this.discountQuantity}個折${this.discountAmount}元</p>` : ''}
                     <div class="cart-item-quantity">
                         <button class="quantity-btn" onclick="window.cart.updateQuantity('${item._id}', -1)">-</button>
                         <span>${item.quantity}</span>

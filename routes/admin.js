@@ -10,7 +10,7 @@ router.post('/login', async (req, res) => {
         const { username, password } = req.body;
         
         // 在實際應用中，這些憑證應該存儲在資料庫中並加密
-        if (username === 'coffee' && password === 'coffeecoffee') {
+        if (username === 'admin' && password === 'admin123') {
             // 生成 JWT token
             const token = jwt.sign(
                 { isAdmin: true },
