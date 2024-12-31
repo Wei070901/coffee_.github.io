@@ -3,6 +3,9 @@ class ShoppingCart {
         const savedCart = localStorage.getItem('cartItems');
         this.items = savedCart ? JSON.parse(savedCart) : [];
         this.total = 0;
+        this.discountedProductId = '676ff1bb1b00b89008080161'; // 這裡設置要折扣的商品ID
+        this.discountQuantity = 2; // 購買幾個才有折扣
+        this.discountAmount = 10; // 折扣金額
         this.init();
         this.updateCart();
     }
@@ -82,32 +85,59 @@ class ShoppingCart {
         }
     }
 
+    calculateItemTotal(item) {
+        let itemTotal = item.price * item.quantity;
+        
+        // 檢查是否是折扣商品且數量符合折扣條件
+        if (item._id === this.discountedProductId && item.quantity >= this.discountQuantity) {
+            // 計算有幾組折扣
+            const discountGroups = Math.floor(item.quantity / this.discountQuantity);
+            itemTotal -= discountGroups * this.discountAmount;
+        }
+        
+        return itemTotal;
+    }
+
     updateCart() {
+        if (!this.cartItems || !this.cartCount) return;
+
         this.cartItems.innerHTML = '';
         this.total = 0;
+        let totalItems = 0;
 
         this.items.forEach(item => {
-            this.total += item.price * item.quantity;
+            totalItems += item.quantity;
+            const itemTotal = this.calculateItemTotal(item);
+            this.total += itemTotal;
+            
             const itemElement = document.createElement('div');
             itemElement.className = 'cart-item';
             itemElement.innerHTML = `
-                <img src="${item.imageUrl || item.image}" alt="${item.name}">
+                <img src="${item.imageUrl}" alt="${item.name}">
                 <div class="cart-item-info">
                     <h4>${item.name}</h4>
                     <p class="cart-item-price">NT$ ${item.price}</p>
+                    ${item._id === this.discountedProductId ? 
+                        `<p class="discount-info">買${this.discountQuantity}個折${this.discountAmount}元</p>` : ''}
                     <div class="cart-item-quantity">
-                        <button class="quantity-btn" onclick="cart.updateQuantity(${item.id}, -1)">-</button>
+                        <button class="quantity-btn" onclick="window.cart.updateQuantity('${item._id}', -1)">-</button>
                         <span>${item.quantity}</span>
-                        <button class="quantity-btn" onclick="cart.updateQuantity(${item.id}, 1)">+</button>
+                        <button class="quantity-btn" onclick="window.cart.updateQuantity('${item._id}', 1)">+</button>
                     </div>
+                    ${item._id === this.discountedProductId && item.quantity >= this.discountQuantity ? 
+                        `<p class="discount-applied">已折扣 NT$ ${Math.floor(item.quantity / this.discountQuantity) * this.discountAmount}</p>` : ''}
                 </div>
-                <button class="remove-item" onclick="cart.removeItem(${item.id})">&times;</button>
+                <button class="remove-item" onclick="window.cart.removeItem('${item._id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
             `;
             this.cartItems.appendChild(itemElement);
         });
 
-        this.cartTotal.textContent = `NT$ ${this.total}`;
-        this.cartCount.textContent = this.items.reduce((sum, item) => sum + item.quantity, 0);
+        if (this.cartTotal) {
+            this.cartTotal.textContent = this.total;
+        }
+        this.cartCount.textContent = totalItems;
     }
 
     openCart() {
