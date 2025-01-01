@@ -96,13 +96,24 @@ class ShoppingCart {
                     <h4>${item.name}</h4>
                     <p class="cart-item-price">NT$ ${item.price}</p>
                     <div class="cart-item-quantity">
-                        <button class="quantity-btn" onclick="cart.updateQuantity(${item.id}, -1)">-</button>
+                        <button class="quantity-btn minus-btn" data-id="${item.id}">-</button>
                         <span>${item.quantity}</span>
-                        <button class="quantity-btn" onclick="cart.updateQuantity(${item.id}, 1)">+</button>
+                        <button class="quantity-btn plus-btn" data-id="${item.id}">+</button>
                     </div>
                 </div>
-                <button class="remove-item" onclick="cart.removeItem(${item.id})">&times;</button>
+                <button class="remove-item" data-id="${item.id}">&times;</button>
             `;
+
+            // 綁定按鈕事件
+            const removeBtn = itemElement.querySelector('.remove-item');
+            removeBtn.addEventListener('click', () => this.removeItem(item.id));
+
+            const minusBtn = itemElement.querySelector('.minus-btn');
+            minusBtn.addEventListener('click', () => this.updateQuantity(item.id, -1));
+
+            const plusBtn = itemElement.querySelector('.plus-btn');
+            plusBtn.addEventListener('click', () => this.updateQuantity(item.id, 1));
+
             this.cartItems.appendChild(itemElement);
         });
 
