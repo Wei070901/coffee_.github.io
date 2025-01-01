@@ -256,21 +256,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            const orderData = {
-                items: cart.map(item => ({
+            // 計算每個商品的最終價格
+            const itemsWithDiscountedPrice = cart.map(item => {
+                let itemDiscount = 0;
+                if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
+                    itemDiscount = 10 * Math.floor(item.quantity / 2);
+                }
+                
+                // 計算該商品的總價
+                const totalItemPrice = item.price * item.quantity;
+                // 計算折扣後的單價
+                const discountedPrice = (totalItemPrice - itemDiscount) / item.quantity;
+                
+                return {
                     productId: item.id,
                     name: item.name,
                     quantity: parseInt(item.quantity) || 1,
-                    price: parseFloat(item.price)
-                })),
+                    price: discountedPrice // 使用折扣後的單價
+                };
+            });
+
+            const orderData = {
+                items: itemsWithDiscountedPrice,
                 shippingInfo: {
                     name: customerData.name,
                     phone: customerData.phone,
                     email: customerData.email,
                     note: customerData.note
                 },
-                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
-                discount: discount  // 加入折扣金額
+                paymentMethod: document.querySelector('input[name="payment"]:checked').value
             };
 
             console.log('提交訂單資料:', orderData);
