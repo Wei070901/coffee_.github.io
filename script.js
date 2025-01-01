@@ -62,12 +62,10 @@ class ShoppingCart {
     }
 
     removeItem(id) {
-        const index = this.items.findIndex(item => item.id === id);
-        if (index !== -1) {
-            this.items.splice(index, 1);
-            localStorage.setItem('cartItems', JSON.stringify(this.items));
-            this.updateCart();
-        }
+        this.items = this.items.filter(item => item.id !== id);
+        // 更新 localStorage
+        localStorage.setItem('cartItems', JSON.stringify(this.items));
+        this.updateCart();
     }
 
     updateQuantity(id, change) {
@@ -77,6 +75,7 @@ class ShoppingCart {
             if (item.quantity <= 0) {
                 this.removeItem(id);
             } else {
+                // 更新 localStorage
                 localStorage.setItem('cartItems', JSON.stringify(this.items));
                 this.updateCart();
             }
@@ -97,23 +96,13 @@ class ShoppingCart {
                     <h4>${item.name}</h4>
                     <p class="cart-item-price">NT$ ${item.price}</p>
                     <div class="cart-item-quantity">
-                        <button class="quantity-btn minus-btn">-</button>
+                        <button class="quantity-btn" onclick="cart.updateQuantity(${item.id}, -1)">-</button>
                         <span>${item.quantity}</span>
-                        <button class="quantity-btn plus-btn">+</button>
+                        <button class="quantity-btn" onclick="cart.updateQuantity(${item.id}, 1)">+</button>
                     </div>
                 </div>
-                <button class="remove-item">&times;</button>
+                <button class="remove-item" onclick="cart.removeItem(${item.id})">&times;</button>
             `;
-
-            // 添加事件監聽器
-            const minusBtn = itemElement.querySelector('.minus-btn');
-            const plusBtn = itemElement.querySelector('.plus-btn');
-            const removeBtn = itemElement.querySelector('.remove-item');
-            
-            minusBtn.addEventListener('click', () => this.updateQuantity(item.id, -1));
-            plusBtn.addEventListener('click', () => this.updateQuantity(item.id, 1));
-            removeBtn.addEventListener('click', () => this.removeItem(item.id));
-
             this.cartItems.appendChild(itemElement);
         });
 
