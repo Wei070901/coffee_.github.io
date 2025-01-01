@@ -126,7 +126,7 @@ function renderOrders(orders) {
     }
 
     if (!orders || !Array.isArray(orders) || orders.length === 0) {
-        orderTableBody.innerHTML = '<tr><td colspan="7" class="no-orders">目前沒有訂單</td></tr>';
+        orderTableBody.innerHTML = '<tr><td colspan="8" class="no-orders">目前沒有訂單</td></tr>';
         return;
     }
 
@@ -154,6 +154,7 @@ function renderOrders(orders) {
                         <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>已收到</option>
                     </select>
                 </td>
+                <td>${order.shippingInfo?.note || '-'}</td>
                 <td>
                     <button onclick="viewOrderDetails('${order._id}')" class="view-btn">查看詳情</button>
                 </td>
