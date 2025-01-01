@@ -253,84 +253,96 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('購物車是空的');
             }
 
-            // 檢查付款方式是否已選擇
-            const selectedPayment = document.querySelector('input[name="payment"]:checked');
-            if (!selectedPayment) {
-                throw new Error('請選擇付款方式');
-            }
-
-            // 檢查顧客資料是否完整
-            if (!customerData.name || !customerData.phone || !customerData.email) {
-                throw new Error('請填寫完整的收件資訊');
-            }
-
+            // 檢查購物車數據
+            console.log('原始購物車數據:', cart);
+            
+            // 構建訂單數據
             const orderData = {
-                items: cart.map(item => ({
-                    productId: item.id ? String(item.id) : String(item._id), // 處理不同的 ID 格式
-                    quantity: Number(item.quantity),
-                    price: Number(item.price)
-                })),
+                items: cart.map(item => {
+                    console.log('處理商品:', item);
+                    return {
+                        productId: item.id || item._id, // 不轉換為字符串
+                        quantity: Number(item.quantity),
+                        price: Number(item.price)
+                    };
+                }),
                 shippingInfo: {
                     name: customerData.name,
                     phone: customerData.phone,
                     email: customerData.email
                 },
-                paymentMethod: selectedPayment.value,
-                totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) // 添加總金額
+                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+                totalAmount: cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0)
             };
 
-            console.log('提交訂單資料:', orderData);
+            console.log('提交訂單資料:', JSON.stringify(orderData, null, 2));
 
             const apiUrl = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3002' 
                 : 'https://coffee-github-io.onrender.com';
 
-            const response = await fetch(`${apiUrl}/api/orders`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                credentials: 'include',
-                body: JSON.stringify(orderData)
-            });
+            console.log('使用的 API URL:', apiUrl);
+            console.log('Authorization Token:', `Bearer ${token.substring(0, 10)}...`);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || '創建訂單失敗');
-            }
+            try {
+                const response = await fetch(`${apiUrl}/api/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(orderData)
+                });
 
-            const responseData = await response.json();
-            
-            // 清空購物車
-            localStorage.removeItem('cartItems');
-            
-            // 更新購物車數量顯示
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                cartCount.textContent = '0';
-            }
-            
-            // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
-            const now = new Date();
-            const orderNumber = `CF${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${responseData._id.slice(-6)}`;
-            const lastOrder = {
-                orderId: responseData._id,  // 添加訂單 ID
-                orderNumber: orderNumber,
-                total: responseData.totalAmount,
-                orderDate: new Date().toISOString(),
-                items: cart,
-                customerData: {
-                    name: customerData.name,
-                    phone: customerData.phone,
-                    email: customerData.email,
-                    payment: selectedPayment.value
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+
+                if (!response.ok) {
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        throw new Error(errorData.message || errorData.error || '創建訂單失敗');
+                    } catch (e) {
+                        throw new Error(`創建訂單失敗: ${responseText}`);
+                    }
                 }
-            };
-            localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
-            
-            // 跳轉到訂單追蹤頁面，並帶上訂單 ID
-            window.location.href = `order-tracking.html?orderId=${responseData._id}`;
+
+                const responseData = JSON.parse(responseText);
+                
+                // 清空購物車
+                localStorage.removeItem('cartItems');
+                
+                // 更新購物車數量顯示
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = '0';
+                }
+                
+                // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
+                const now = new Date();
+                const orderNumber = `CF${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${responseData._id.slice(-6)}`;
+                const lastOrder = {
+                    orderId: responseData._id,  // 添加訂單 ID
+                    orderNumber: orderNumber,
+                    total: responseData.totalAmount,
+                    orderDate: new Date().toISOString(),
+                    items: cart,
+                    customerData: {
+                        name: customerData.name,
+                        phone: customerData.phone,
+                        email: customerData.email,
+                        payment: document.querySelector('input[name="payment"]:checked').value
+                    }
+                };
+                localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
+                
+                // 跳轉到訂單追蹤頁面，並帶上訂單 ID
+                window.location.href = `order-tracking.html?orderId=${responseData._id}`;
+            } catch (error) {
+                console.error('訂單提交失敗:', error);
+                alert(error.message || '訂單提交失敗，請稍後再試');
+            }
         } catch (error) {
             console.error('訂單提交失敗:', error);
             alert(error.message || '訂單提交失敗，請稍後再試');
