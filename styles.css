@@ -763,7 +763,7 @@ main {
 
 .order-item {
     display: grid;
-    grid-template-columns: 100px 5fr;
+    grid-template-columns: 120px 5fr;
     gap: 1rem;
     padding: 1rem 0;
     border-bottom: 1px solid #f0e6d9;
