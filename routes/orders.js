@@ -85,7 +85,8 @@ router.post('/', authMiddleware, async (req, res) => {
         }
 
         // 計算訂單總金額
-        let totalAmount = 0;
+        let subtotal = 0;
+        let discount = 0;
         const orderItems = [];
 
         for (const item of items) {
@@ -116,14 +117,26 @@ router.post('/', authMiddleware, async (req, res) => {
                     price: product.price
                 });
 
-                totalAmount += product.price * parseInt(item.quantity);
+                subtotal += product.price * parseInt(item.quantity);
             } catch (error) {
                 console.error('處理商品時出錯:', error);
                 return res.status(400).json({ error: `處理商品時出錯: ${error.message}` });
             }
         }
 
-        console.log('準備創建訂單:', { orderItems, totalAmount });
+        // 計算折扣
+        for (const item of items) {
+            // 檢查是否為特定商品並應用折扣
+            if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
+                const itemDiscount = 10 * Math.floor(item.quantity / 2);
+                discount += itemDiscount;
+            }
+        }
+
+        // 計算最終總金額
+        const totalAmount = subtotal - discount;
+
+        console.log('準備創建訂單:', { orderItems, subtotal, discount, totalAmount });
 
         // 生成訂單編號
         const timestamp = Date.now();
@@ -135,6 +148,8 @@ router.post('/', authMiddleware, async (req, res) => {
             orderNumber,
             user: req.user._id,
             items: orderItems,
+            subtotal,
+            discount,
             totalAmount,
             shippingInfo,
             paymentMethod,
