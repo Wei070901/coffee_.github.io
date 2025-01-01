@@ -8,30 +8,63 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // 從 localStorage 獲取購物車資料
             const cart = JSON.parse(localStorage.getItem('cartItems')) || [];
+            const discountedProductName = '咖啡濾掛/包';
+            const discountQuantity = 2;
+            const discountAmount = 10;
+            
             let subtotal = 0;
+            let totalDiscount = 0;
             const shipping = 0; // 固定運費
 
-            // 計算小計
+            // 計算小計和折扣
             cart.forEach(item => {
                 subtotal += item.price * item.quantity;
+                
+                // 計算折扣
+                if (item.name === discountedProductName && item.quantity >= discountQuantity) {
+                    const discountGroups = Math.floor(item.quantity / discountQuantity);
+                    totalDiscount += discountGroups * discountAmount;
+                }
             });
 
             // 計算總計
-            const total = subtotal + shipping;
+            const total = subtotal - totalDiscount + shipping;
 
             // 更新側邊欄訂單摘要
             const sidebarOrderItems = document.getElementById('sidebarOrderItems');
             if (sidebarOrderItems) {
-                sidebarOrderItems.innerHTML = cart.map(item => `
-                    <div class="order-item">
-                        <span>${item.name}</span>
-                        <span>NT$ ${item.price} × ${item.quantity}</span>
-                    </div>
-                `).join('');
+                sidebarOrderItems.innerHTML = cart.map(item => {
+                    let itemHtml = `
+                        <div class="order-item">
+                            <div class="item-info">
+                                <img src="${item.imageUrl}" alt="${item.name}" class="item-image">
+                                <div class="item-details">
+                                    <h4>${item.name}</h4>
+                                    <p>NT$ ${item.price} × ${item.quantity}</p>
+                                </div>
+                            </div>
+                    `;
 
-                // 更新小計和總計
-                document.getElementById('sidebarSubtotal').textContent = `NT$ ${subtotal}`;
-                document.getElementById('sidebarTotal').textContent = `NT$ ${total}`;
+                    // 如果是折扣商品且數量符合條件，顯示折扣信息
+                    if (item.name === discountedProductName && item.quantity >= discountQuantity) {
+                        const itemDiscountGroups = Math.floor(item.quantity / discountQuantity);
+                        const itemDiscount = itemDiscountGroups * discountAmount;
+                        itemHtml += `
+                            <div class="item-discount">
+                                <p class="discount-info">買${discountQuantity}個折${discountAmount}元</p>
+                                <p class="discount-amount">- NT$ ${itemDiscount}</p>
+                            </div>
+                        `;
+                    }
+
+                    itemHtml += `</div>`;
+                    return itemHtml;
+                }).join('');
+
+                // 更新小計、折扣和總計
+                document.getElementById('checkoutSubtotal').textContent = `NT$ ${subtotal}`;
+                document.getElementById('checkoutDiscount').textContent = totalDiscount > 0 ? `- NT$ ${totalDiscount}` : `NT$ 0`;
+                document.getElementById('checkoutTotal').textContent = `NT$ ${total}`;
             }
 
             // 更新確認頁面的訂單摘要
@@ -52,6 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="subtotal">
                                 <span>小計</span>
                                 <span>NT$ ${subtotal}</span>
+                            </div>
+                            <div class="discount">
+                                <span>折扣</span>
+                                <span>${totalDiscount > 0 ? `- NT$ ${totalDiscount}` : `NT$ 0`}</span>
                             </div>
                             <div class="shipping">
                                 <span>運費</span>
