@@ -11,8 +11,11 @@ const statusFilter = document.getElementById('statusFilter');
 // 檢查登入狀態
 async function checkLoginStatus() {
     try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_BASE_URL}/api/admin/check-auth`, {
-            credentials: 'include'
+            headers: token ? {
+                'Authorization': `Bearer ${token}`
+            } : {}
         });
         const data = await response.json();
         
@@ -66,10 +69,11 @@ loginForm.addEventListener('submit', async (e) => {
 // 載入訂單資料
 async function loadOrders() {
     try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
-            headers: {
+            headers: token ? {
                 'Authorization': `Bearer ${token}`
-            }
+            } : {}
         });
 
         if (!response.ok) {
@@ -171,8 +175,8 @@ async function updateOrderStatus(orderId, newStatus) {
         const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/status`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ status: newStatus })
         });
@@ -223,6 +227,7 @@ async function logout() {
         });
 
         if (response.ok) {
+            localStorage.removeItem('adminToken');
             loginContainer.style.display = 'block';
             adminPanel.style.display = 'none';
         } else {
@@ -240,5 +245,4 @@ statusFilter.addEventListener('change', loadOrders);
 // 頁面載入時檢查登入狀態
 document.addEventListener('DOMContentLoaded', () => {
     checkLoginStatus();
-    loadOrders();
 });
