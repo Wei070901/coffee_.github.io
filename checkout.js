@@ -313,6 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
             const orderNumber = `CF${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${responseData._id.slice(-6)}`;
             const lastOrder = {
+                orderId: responseData._id,  // 添加訂單 ID
                 orderNumber: orderNumber,
                 total: responseData.totalAmount,
                 orderDate: new Date().toISOString(),
@@ -326,8 +327,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
             
-            // 跳轉到訂單追蹤頁面
-            window.location.href = 'order-tracking.html';
+            // 跳轉到訂單追蹤頁面，並帶上訂單 ID
+            window.location.href = `order-tracking.html?orderId=${responseData._id}`;
         } catch (error) {
             console.error('訂單提交失敗:', error);
             alert(error.message || '訂單提交失敗，請稍後再試');
