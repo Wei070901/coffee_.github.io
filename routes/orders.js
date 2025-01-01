@@ -60,20 +60,27 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
 
 // 創建新訂單
 router.post('/', authMiddleware, async (req, res) => {
+    console.log('收到訂單請求 - 開始處理');
+    console.log('請求頭:', req.headers);
+    console.log('用戶信息:', req.user);
+    
     try {
         const { items, shippingInfo, paymentMethod } = req.body;
-        console.log('收到訂單請求:', { items, shippingInfo, paymentMethod });
+        console.log('訂單數據:', { items, shippingInfo, paymentMethod });
 
         // 驗證必要資料
         if (!items || !Array.isArray(items) || items.length === 0) {
+            console.log('訂單驗證失敗: 沒有商品');
             return res.status(400).json({ error: '訂單必須包含商品' });
         }
 
         if (!shippingInfo || !shippingInfo.name || !shippingInfo.phone || !shippingInfo.email) {
+            console.log('訂單驗證失敗: 收件資訊不完整');
             return res.status(400).json({ error: '請提供完整的收件資訊' });
         }
 
         if (!paymentMethod) {
+            console.log('訂單驗證失敗: 未選擇付款方式');
             return res.status(400).json({ error: '請選擇付款方式' });
         }
 
@@ -83,17 +90,23 @@ router.post('/', authMiddleware, async (req, res) => {
 
         for (const item of items) {
             try {
+                console.log('處理商品:', item);
+                
                 if (!item.productId || !item.quantity || !item.price) {
                     throw new Error(`商品資料不完整: ${JSON.stringify(item)}`);
                 }
 
                 const product = await Product.findById(item.productId);
                 if (!product) {
+                    console.log('找不到商品:', item.productId);
                     return res.status(400).json({ error: `找不到商品: ${item.productId}` });
                 }
 
+                console.log('找到商品:', product);
+
                 // 驗證價格
                 if (product.price !== item.price) {
+                    console.log('價格不符:', { 商品價格: product.price, 訂單價格: item.price });
                     return res.status(400).json({ error: `商品 ${product.name} 價格不符` });
                 }
 
@@ -110,6 +123,8 @@ router.post('/', authMiddleware, async (req, res) => {
             }
         }
 
+        console.log('準備創建訂單:', { orderItems, totalAmount });
+
         // 創建訂單
         const order = new Order({
             user: req.user._id,
@@ -121,6 +136,7 @@ router.post('/', authMiddleware, async (req, res) => {
         });
 
         await order.save();
+        console.log('訂單創建成功:', order._id);
         
         // 返回訂單資訊
         res.status(201).json({
@@ -131,7 +147,11 @@ router.post('/', authMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error('創建訂單失敗:', error);
-        res.status(500).json({ error: '創建訂單失敗', details: error.message });
+        res.status(500).json({ 
+            error: '創建訂單失敗', 
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 

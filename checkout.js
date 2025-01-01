@@ -270,6 +270,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('請先登入');
                 }
 
+                console.log('開始提交訂單');
+                console.log('API URL:', `${apiUrl}/api/orders`);
+                console.log('訂單數據:', orderData);
+                console.log('Authorization:', `Bearer ${token}`);
+
                 const response = await fetch(`${apiUrl}/api/orders`, {
                     method: 'POST',
                     headers: {
@@ -279,12 +284,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify(orderData)
                 });
 
+                console.log('收到響應:', {
+                    status: response.status,
+                    statusText: response.statusText
+                });
+
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || '訂單建立失敗');
+                    const errorText = await response.text();
+                    console.error('錯誤響應內容:', errorText);
+                    
+                    let errorMessage = '訂單建立失敗';
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.error || errorData.message || errorMessage;
+                    } catch (e) {
+                        console.error('解析錯誤響應失敗:', e);
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 const responseData = await response.json();
+                console.log('訂單建立成功:', responseData);
                 
                 // 清空購物車
                 localStorage.removeItem('cartItems');
