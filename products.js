@@ -12,7 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         async fetchProducts() {
             try {
-                const response = await fetch('https://coffee-github-io.onrender.com/api/products');
+                const apiUrl = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:3000/api/products'
+                    : 'https://web-production-53e2.up.railway.app/api/products';
+                const response = await fetch(apiUrl);
                 const data = await response.json();
                 this.products = data;
                 this.renderProducts(this.products);
