@@ -177,8 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 customerData = {
                     name: document.getElementById('name').value,
                     phone: document.getElementById('phone').value,
-                    email: document.getElementById('email').value,
-                    note: document.getElementById('note').value || ''
+                    email: document.getElementById('email').value
                 };
                 console.log('個人資料驗證通過:', customerData);
             }
@@ -227,7 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p><strong>姓名：</strong>${customerData.name}</p>
                     <p><strong>電話：</strong>${customerData.phone}</p>
                     <p><strong>信箱：</strong>${customerData.email}</p>
-                    <p><strong>備註：</strong>${customerData.note || '-'}</p>
                     <p><strong>付款方式：</strong>${paymentText}</p>
                 `;
                 
@@ -255,8 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 shippingInfo: {
                     name: customerData.name,
                     phone: customerData.phone,
-                    email: customerData.email,
-                    note: customerData.note
+                    email: customerData.email
                 },
                 paymentMethod: document.querySelector('input[name="payment"]:checked').value
             };
