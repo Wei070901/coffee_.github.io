@@ -256,6 +256,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // 計算總金額
             const totalAmount = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
 
+            // 生成訂單編號
+            const now = new Date();
+            const orderNumber = `ORD${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+
             // 檢查付款方式是否已選擇
             const selectedPayment = document.querySelector('input[name="payment"]:checked');
             if (!selectedPayment) {
@@ -268,8 +272,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const orderData = {
+                orderNumber: orderNumber,
                 items: cart.map(item => ({
-                    productId: item.id || item._id,  // 使用 productId
+                    productId: item.id || item._id,
                     quantity: Number(item.quantity),
                     price: Number(item.price)
                 })),
@@ -315,8 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
-            const now = new Date();
-            const orderNumber = `CF${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${responseData._id.slice(-6)}`;
             const lastOrder = {
                 orderNumber: orderNumber,
                 total: responseData.totalAmount,
