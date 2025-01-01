@@ -66,7 +66,8 @@ router.get('/orders', requireAdmin, async (req, res) => {
         const orders = await Order.find()
             .sort({ createdAt: -1 })
             .populate('user', 'name email')
-            .populate('items.product', 'name price');
+            .populate('items.product', 'name price')
+            .select('orderNumber createdAt items totalAmount status shippingInfo');
         res.json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);
