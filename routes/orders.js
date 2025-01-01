@@ -127,10 +127,10 @@ router.post('/', authMiddleware, async (req, res) => {
                 orderItems.push({
                     product: product._id,
                     quantity: parseInt(item.quantity),
-                    price: product.price
+                    price: finalPrice
                 });
 
-                totalAmount += product.price * parseInt(item.quantity);
+                totalAmount += finalPrice * parseInt(item.quantity);
             } catch (error) {
                 console.error('處理商品時出錯:', error);
                 return res.status(400).json({ error: `處理商品時出錯: ${error.message}` });
