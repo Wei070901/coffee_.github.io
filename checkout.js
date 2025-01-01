@@ -177,8 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 customerData = {
                     name: document.getElementById('name').value,
                     phone: document.getElementById('phone').value,
-                    email: document.getElementById('email').value,
-                    notes: document.getElementById('notes').value
+                    email: document.getElementById('email').value
                 };
                 console.log('個人資料驗證通過:', customerData);
             }
@@ -200,41 +199,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateConfirmationInfo() {
-        const confirmationArea = document.querySelector('.order-confirmation');
-        if (!confirmationArea) return;
+        try {
+            const paymentMethod = document.querySelector('input[name="payment"]:checked');
+            let paymentText = '';
+            
+            if (paymentMethod) {
+                switch(paymentMethod.value) {
+                    case 'cash-taipei':
+                        paymentText = '現金-台北車站';
+                        break;
+                    case 'cash-sanchong':
+                        paymentText = '現金-三重商工';
+                        break;
+                    default:
+                        paymentText = '未選擇';
+                }
+            }
 
-        const paymentMethod = document.querySelector('input[name="payment"]:checked');
-        const paymentText = paymentMethod ? paymentMethod.parentElement.querySelector('label').textContent.trim() : '未選擇';
-
-        confirmationArea.innerHTML = `
-            <div class="confirmation-section">
-                <h3>收件資訊</h3>
-                <div class="info-item">
-                    <span>姓名：</span>
-                    <span>${customerData.name || ''}</span>
-                </div>
-                <div class="info-item">
-                    <span>電話：</span>
-                    <span>${customerData.phone || ''}</span>
-                </div>
-                <div class="info-item">
-                    <span>Email：</span>
-                    <span>${customerData.email || ''}</span>
-                </div>
-                ${customerData.notes ? `
-                <div class="info-item">
-                    <span>備註：</span>
-                    <span>${customerData.notes}</span>
-                </div>
-                ` : ''}
-            </div>
-            <div class="confirmation-section">
-                <h3>付款方式</h3>
-                <div class="info-item">
-                    <span>${paymentText}</span>
-                </div>
-            </div>
-        `;
+            // 更新確認資訊
+            const confirmationArea = document.querySelector('.order-confirmation');
+            if (confirmationArea) {
+                const confirmationInfo = document.createElement('div');
+                confirmationInfo.className = 'confirmation-info';
+                confirmationInfo.innerHTML = `
+                    <h3>收件資訊</h3>
+                    <p><strong>姓名：</strong>${customerData.name}</p>
+                    <p><strong>電話：</strong>${customerData.phone}</p>
+                    <p><strong>信箱：</strong>${customerData.email}</p>
+                    <p><strong>付款方式：</strong>${paymentText}</p>
+                `;
+                
+                // 清空確認區域並添加新資訊
+                confirmationArea.innerHTML = '';
+                confirmationArea.appendChild(confirmationInfo);
+                
+                // 重新初始化訂單資料以更新訂單摘要
+                initializeOrderData();
+            }
+        } catch (error) {
+            console.error('更新確認資訊時發生錯誤:', error);
+        }
     }
 
     async function submitOrder() {
@@ -249,8 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 shippingInfo: {
                     name: customerData.name,
                     phone: customerData.phone,
-                    email: customerData.email,
-                    notes: customerData.notes
+                    email: customerData.email
                 },
                 paymentMethod: document.querySelector('input[name="payment"]:checked').value
             };

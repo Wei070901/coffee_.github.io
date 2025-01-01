@@ -99,8 +99,7 @@
                 <div class="checkout-content">
                     <!-- 步驟一：填寫資料 -->
                     <div id="step1" class="checkout-step" style="display: block;">
-                        <div class="checkout-form">
-                            <h2>收件資訊</h2>
+                        <form id="shippingForm">
                             <div class="form-group">
                                 <label for="name">姓名</label>
                                 <input type="text" id="name" name="name" required>
@@ -114,11 +113,15 @@
                                 <input type="email" id="email" name="email" required>
                             </div>
                             <div class="form-group">
-                                <label for="notes">訂單備註</label>
-                                <textarea id="notes" name="notes" rows="3" placeholder="有什麼想告訴我們的嗎？"></textarea>
+                                <label for="address">地址</label>
+                                <input type="text" id="address" name="address" required>
                             </div>
-                            <button type="button" class="next-step-btn">下一步</button>
-                        </div>
+                            <div class="form-group">
+                                <label for="note">訂單備註</label>
+                                <textarea id="note" name="note" rows="3" placeholder="有什麼想告訴我們的嗎？"></textarea>
+                            </div>
+                        </form>
+                        <button type="button" class="next-step-btn">下一步</button>
                     </div>
 
                     <!-- 步驟二：付款方式 -->

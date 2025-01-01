@@ -156,12 +156,6 @@ function renderOrders(orders) {
                 </td>
                 <td>
                     <button onclick="viewOrderDetails('${order._id}')" class="view-btn">查看詳情</button>
-                    ${order.shippingInfo?.notes ? `
-                    <div class="order-notes">
-                        <i class="fas fa-sticky-note" title="備註"></i>
-                        <div class="notes-content">${order.shippingInfo.notes}</div>
-                    </div>
-                    ` : ''}
                 </td>
             </tr>
         `;
@@ -206,78 +200,21 @@ async function viewOrderDetails(orderId) {
         const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
             headers: {
-                'Authorization': `Bearer ${token}`
-            }
+                'Authorization': `Bearer ${token}`,
+            },
+            credentials: 'include'
         });
-
-        if (!response.ok) {
-            throw new Error('獲取訂單詳情失敗');
-        }
-
-        const order = await response.json();
-        const orderDate = new Date(order.createdAt);
-        const formattedDate = `${orderDate.getFullYear()}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
-
-        // 創建模態框
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>訂單詳情</h2>
-                <div class="order-details">
-                    <div class="detail-section">
-                        <h3>基本資訊</h3>
-                        <p><strong>訂單編號：</strong>${formatOrderId(order)}</p>
-                        <p><strong>訂單日期：</strong>${formattedDate}</p>
-                        <p><strong>訂單狀態：</strong>${order.status}</p>
-                    </div>
-                    
-                    <div class="detail-section">
-                        <h3>收件人資訊</h3>
-                        <p><strong>姓名：</strong>${order.shippingInfo.name}</p>
-                        <p><strong>電話：</strong>${order.shippingInfo.phone}</p>
-                        <p><strong>Email：</strong>${order.shippingInfo.email}</p>
-                        ${order.shippingInfo.notes ? `
-                        <p><strong>備註：</strong>${order.shippingInfo.notes}</p>
-                        ` : ''}
-                    </div>
-
-                    <div class="detail-section">
-                        <h3>商品資訊</h3>
-                        <div class="order-items">
-                            ${order.items.map(item => `
-                                <div class="order-item">
-                                    <p><strong>${item.product.name}</strong> x ${item.quantity}</p>
-                                    <p>單價：NT$ ${item.price}</p>
-                                    <p>小計：NT$ ${item.price * item.quantity}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="order-total">
-                            <p><strong>總計：</strong>NT$ ${order.totalAmount}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // 添加關閉功能
-        document.body.appendChild(modal);
-        const closeBtn = modal.querySelector('.close');
-        closeBtn.onclick = function() {
-            modal.remove();
-        };
         
-        // 點擊模態框外部關閉
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.remove();
-            }
-        };
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || '獲取訂單詳情失敗');
+        }
+        
+        const order = await response.json();
+        alert(JSON.stringify(order, null, 2));
     } catch (error) {
-        console.error('查看訂單詳情失敗:', error);
-        alert(error.message);
+        console.error('獲取訂單詳情失敗:', error);
+        alert(error.message || '獲取訂單詳情失敗，請稍後再試');
     }
 }
 
