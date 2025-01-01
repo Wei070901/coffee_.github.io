@@ -62,17 +62,23 @@ const adminRoutes = require('./routes/admin');
 const contactRoutes = require('./routes/contact');
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 // 基本的 CORS 設置
+const allowedOrigins = [
+    'https://coffee-github-io.onrender.com',
+    'http://localhost:5500',
+    'http://localhost:3000',
+    'http://localhost:10000',
+    'https://web-production-53e2.up.railway.app'
+];
+
+if (process.env.ALLOWED_ORIGINS) {
+    allowedOrigins.push(...process.env.ALLOWED_ORIGINS.split(','));
+}
+
 const corsOptions = {
     origin: function (origin, callback) {
-        const allowedOrigins = [
-            'https://coffee-github-io.onrender.com',
-            'http://localhost:5500',
-            'http://localhost:3000',
-            'http://localhost:10000'
-        ];
-        
         // 在開發環境中允許沒有 origin 的請求
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -143,8 +149,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Visit your website at ${process.env.NODE_ENV === 'production' ? 'your deployed URL' : 'http://localhost:' + PORT}`);
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+    console.log(`Visit your website at ${process.env.NODE_ENV === 'production' ? 'your deployed URL' : 'http://localhost:' + port}`);
 });
