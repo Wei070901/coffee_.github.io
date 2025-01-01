@@ -62,10 +62,12 @@ class ShoppingCart {
     }
 
     removeItem(id) {
-        this.items = this.items.filter(item => item.id !== id);
-        // 更新 localStorage
-        localStorage.setItem('cartItems', JSON.stringify(this.items));
-        this.updateCart();
+        const index = this.items.findIndex(item => item.id === id);
+        if (index !== -1) {
+            this.items.splice(index, 1);
+            localStorage.setItem('cartItems', JSON.stringify(this.items));
+            this.updateCart();
+        }
     }
 
     updateQuantity(id, change) {
@@ -75,7 +77,6 @@ class ShoppingCart {
             if (item.quantity <= 0) {
                 this.removeItem(id);
             } else {
-                // 更新 localStorage
                 localStorage.setItem('cartItems', JSON.stringify(this.items));
                 this.updateCart();
             }
