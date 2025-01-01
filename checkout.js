@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 subtotal += item.price * item.quantity;
 
                 // 檢查是否為特定商品並應用折扣
-                if (item.name === '經典黑咖啡' && item.quantity >= 2) {
+                if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
                     const itemDiscount = 10 * Math.floor(item.quantity / 2);
                     discount += itemDiscount;
                     subtotal -= itemDiscount; // 每滿兩件折10元
