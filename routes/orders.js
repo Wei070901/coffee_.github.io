@@ -68,23 +68,32 @@ router.post('/', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: '訂單必須包含商品' });
         }
 
+        if (!shippingInfo || !shippingInfo.name || !shippingInfo.phone || !shippingInfo.email) {
+            return res.status(400).json({ error: '請提供完整的收件資訊' });
+        }
+
         // 計算訂單總金額
         let totalAmount = 0;
         const orderItems = [];
 
         for (const item of items) {
-            const product = await Product.findById(item.productId);
-            if (!product) {
-                return res.status(400).json({ error: `找不到商品: ${item.productId}` });
+            try {
+                const product = await Product.findById(item.productId);
+                if (!product) {
+                    return res.status(400).json({ error: `找不到商品: ${item.productId}` });
+                }
+
+                orderItems.push({
+                    product: product._id,
+                    quantity: item.quantity,
+                    price: product.price
+                });
+
+                totalAmount += product.price * item.quantity;
+            } catch (error) {
+                console.error('處理商品時出錯:', error);
+                return res.status(400).json({ error: `無效的商品ID: ${item.productId}` });
             }
-
-            orderItems.push({
-                product: product._id,
-                quantity: item.quantity,
-                price: product.price
-            });
-
-            totalAmount += product.price * item.quantity;
         }
 
         // 創建訂單
@@ -99,12 +108,12 @@ router.post('/', authMiddleware, async (req, res) => {
 
         await order.save();
         
-        // 返回完整的訂單信息
-        const populatedOrder = await Order.findById(order._id)
-            .populate('items.product')
-            .populate('user', 'name email');
-
-        res.status(201).json(populatedOrder);
+        // 返回訂單資訊
+        res.status(201).json({
+            _id: order._id,
+            totalAmount: order.totalAmount,
+            status: order.status
+        });
     } catch (error) {
         console.error('創建訂單失敗:', error);
         res.status(500).json({ error: '創建訂單失敗' });

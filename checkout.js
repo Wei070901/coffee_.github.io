@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const orderData = {
                 items: cart.map(item => ({
-                    productId: String(item.id),  // 修改 id 為 productId
+                    productId: item.id, // 確保這是正確的 MongoDB ObjectId
                     quantity: item.quantity,
                     price: Number(item.price)
                 })),
@@ -280,54 +280,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('提交訂單資料:', orderData);
 
-            const apiUrl = window.location.hostname === 'localhost' 
-                ? 'http://localhost:3000' 
-                : 'https://web-production-53e2.up.railway.app';
+            try {
+                const apiUrl = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:3000' 
+                    : 'https://web-production-53e2.up.railway.app';
 
-            const response = await fetch(`${apiUrl}/api/orders`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                credentials: 'include',
-                body: JSON.stringify(orderData)
-            });
+                const response = await fetch(`${apiUrl}/api/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(orderData)
+                });
 
-            const responseData = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(responseData.error || '訂單建立失敗');
-            }
-
-            // 清空購物車
-            localStorage.removeItem('cartItems');
-            
-            // 更新購物車數量顯示
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                cartCount.textContent = '0';
-            }
-            
-            // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
-            const now = new Date();
-            const orderNumber = `CF${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${responseData._id.slice(-6)}`;
-            const lastOrder = {
-                orderNumber: orderNumber,
-                total: responseData.totalAmount,
-                orderDate: new Date().toISOString(),
-                items: cart,
-                customerData: {
-                    name: customerData.name,
-                    phone: customerData.phone,
-                    email: customerData.email,
-                    payment: selectedPayment.value
+                const responseData = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(responseData.error || '訂單建立失敗');
                 }
-            };
-            localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
-            
-            // 跳轉到訂單追蹤頁面
-            window.location.href = 'order-tracking.html';
+
+                // 清空購物車
+                localStorage.removeItem('cartItems');
+                
+                // 更新購物車數量顯示
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = '0';
+                }
+                
+                // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
+                const now = new Date();
+                const orderNumber = `CF${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${responseData._id.slice(-6)}`;
+                const lastOrder = {
+                    orderNumber: orderNumber,
+                    total: responseData.totalAmount,
+                    orderDate: new Date().toISOString(),
+                    items: cart,
+                    customerData: {
+                        name: customerData.name,
+                        phone: customerData.phone,
+                        email: customerData.email,
+                        payment: selectedPayment.value
+                    }
+                };
+                localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
+                
+                // 跳轉到訂單追蹤頁面
+                window.location.href = 'order-tracking.html';
+            } catch (error) {
+                console.error('訂單提交失敗:', error);
+                alert(error.message || '訂單提交失敗，請稍後再試');
+            }
         } catch (error) {
             console.error('訂單提交失敗:', error);
             alert(error.message || '訂單提交失敗，請稍後再試');
