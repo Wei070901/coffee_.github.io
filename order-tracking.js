@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         const order = await response.json();
-        console.log('訂單數據:', order);  // 添加調試日誌
         
         // 更新訂單編號和金額
         const date = new Date(order.createdAt);
@@ -34,14 +33,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const formattedOrderId = `CO${orderDate}${orderIdSuffix}`;
 
         document.getElementById('trackingOrderNumber').textContent = formattedOrderId;
-        
-        // 計算並顯示總金額，添加錯誤處理
-        const subtotal = order.subtotal || 0;
-        const discount = order.discount || 0;
-        const finalAmount = subtotal - discount;
-        console.log('金額計算:', { subtotal, discount, finalAmount });  // 添加調試日誌
-        
-        document.getElementById('trackingOrderAmount').textContent = `NT$ ${finalAmount.toLocaleString()}`;
+        document.getElementById('trackingOrderAmount').textContent = `NT$ ${order.totalAmount.toLocaleString()}`;
         
         // 格式化並顯示訂單日期
         document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString('zh-TW');
