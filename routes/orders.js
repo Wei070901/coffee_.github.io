@@ -113,12 +113,10 @@ router.post('/', authMiddleware, async (req, res) => {
                 orderItems.push({
                     product: product._id,
                     quantity: parseInt(item.quantity),
-                    price: item.discountedPrice || product.price  // 使用折扣價格，如果沒有則使用原價
+                    price: product.price
                 });
 
-                // 使用折扣價格計算總金額
-                const finalPrice = item.discountedPrice || product.price;
-                totalAmount += finalPrice * parseInt(item.quantity);
+                totalAmount += product.price * parseInt(item.quantity);
             } catch (error) {
                 console.error('處理商品時出錯:', error);
                 return res.status(400).json({ error: `處理商品時出錯: ${error.message}` });
