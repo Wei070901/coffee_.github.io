@@ -1,6 +1,6 @@
 // API 配置
 const config = {
-    apiUrl: 'https://scvs-coffee.netlify.app/api',
+    apiUrl: 'https://coffee-github-io.onrender.com/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
