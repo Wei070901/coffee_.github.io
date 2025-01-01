@@ -47,12 +47,31 @@ const initializeProducts = async () => {
 };
 
 // 在路由之前先連接數據庫
-mongoose.connect(process.env.MONGODB_URI)
-  .then(async () => {
-    console.log('Connected to MongoDB');
+const connectDB = async () => {
+    try {
+        if (!process.env.MONGODB_URI) {
+            throw new Error('MONGODB_URI 環境變量未設置');
+        }
+        console.log('正在連接到 MongoDB...');
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        console.log('MongoDB 連接成功');
+    } catch (err) {
+        console.error('MongoDB 連接錯誤:', err);
+        process.exit(1);
+    }
+};
+
+connectDB().then(async () => {
+    console.log('數據庫連接成功，正在初始化產品數據...');
     await initializeProducts();
-  })
-  .catch(err => console.error('MongoDB connection error:', err));
+    console.log('產品數據初始化完成');
+}).catch(err => {
+    console.error('啟動失敗:', err);
+    process.exit(1);
+});
 
 // 在數據庫連接之後再引入路由
 const authRoutes = require('./routes/auth');
@@ -66,10 +85,6 @@ const port = process.env.PORT || 3000;
 
 // 基本的 CORS 設置
 const allowedOrigins = [
-    'https://coffee-github-io.onrender.com',
-    'http://localhost:5500',
-    'http://localhost:3000',
-    'http://localhost:10000',
     'https://web-production-53e2.up.railway.app'
 ];
 
@@ -139,9 +154,14 @@ app.use('/api/contact', contactRoutes);
 // 錯誤處理中間件
 app.use((err, req, res, next) => {
     console.error('Error:', err);
+    console.error('Stack:', err.stack);
+    console.error('Request body:', req.body);
+    console.error('Request headers:', req.headers);
+    
     res.status(500).json({ 
         error: '伺服器錯誤',
-        message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試'
+        message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試',
+        details: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 });
 
@@ -152,5 +172,6 @@ app.get('*', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-    console.log(`Visit your website at ${process.env.NODE_ENV === 'production' ? 'your deployed URL' : 'http://localhost:' + port}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+    console.log(`Database: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);
 });
