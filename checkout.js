@@ -10,14 +10,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const cart = JSON.parse(localStorage.getItem('cartItems')) || [];
             let subtotal = 0;
             const shipping = 0; // 固定運費
+            let discount = 0;
 
             // 計算小計
             cart.forEach(item => {
                 subtotal += item.price * item.quantity;
 
                 // 檢查是否為特定商品並應用折扣
-                if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
-                    subtotal -= 10; // 每滿兩件折10元
+                if (item.name === '經典黑咖啡' && item.quantity >= 2) {
+                    const itemDiscount = 10 * Math.floor(item.quantity / 2);
+                    discount += itemDiscount;
+                    subtotal -= itemDiscount; // 每滿兩件折10元
                 }
             });
 
@@ -34,9 +37,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `).join('');
 
-                // 更新小計和總計
+                // 更新小計、折扣和總計
                 document.getElementById('sidebarSubtotal').textContent = `NT$ ${subtotal}`;
                 document.getElementById('sidebarTotal').textContent = `NT$ ${total}`;
+                document.getElementById('sidebarDiscount').textContent = `折扣: NT$ ${discount}`;
             }
 
             // 更新確認頁面的訂單摘要
@@ -57,6 +61,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="subtotal">
                                 <span>小計</span>
                                 <span>NT$ ${subtotal}</span>
+                            </div>
+                            <div class="discount">
+                                <span>折扣</span>
+                                <span>NT$ ${discount}</span>
                             </div>
                             <div class="shipping">
                                 <span>運費</span>
