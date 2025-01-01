@@ -125,9 +125,10 @@ router.post('/', authMiddleware, async (req, res) => {
         }
 
         // 計算折扣
-        for (const item of items) {
+        for (const item of orderItems) {
+            const product = await Product.findById(item.product);
             // 檢查是否為特定商品並應用折扣
-            if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
+            if (product.name === '咖啡濾掛/包' && item.quantity >= 2) {
                 const itemDiscount = 10 * Math.floor(item.quantity / 2);
                 discount += itemDiscount;
             }
@@ -182,7 +183,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
         const order = await Order.findOne({
             _id: req.params.id,
             user: req.user._id
-        }).populate('items.product');
+        })
+        .populate('items.product')
+        .select('orderNumber createdAt items totalAmount subtotal discount status shippingInfo');
 
         if (!order) {
             return res.status(404).json({ error: '找不到訂單' });
