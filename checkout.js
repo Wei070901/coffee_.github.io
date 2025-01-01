@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // 計算總計
-            const total = subtotal + shipping;
+            const total = subtotal + shipping - discount;
 
             // 更新側邊欄訂單摘要
             const sidebarOrderItems = document.getElementById('sidebarOrderItems');
