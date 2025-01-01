@@ -85,8 +85,7 @@ router.post('/', authMiddleware, async (req, res) => {
         }
 
         // 計算訂單總金額
-        let subtotal = 0;
-        let discount = 0;
+        let totalAmount = 0;
         const orderItems = [];
 
         for (const item of items) {
@@ -114,30 +113,19 @@ router.post('/', authMiddleware, async (req, res) => {
                 orderItems.push({
                     product: product._id,
                     quantity: parseInt(item.quantity),
-                    price: product.price
+                    price: item.discountedPrice || product.price  // 使用折扣價格，如果沒有則使用原價
                 });
 
-                subtotal += product.price * parseInt(item.quantity);
+                // 使用折扣價格計算總金額
+                const finalPrice = item.discountedPrice || product.price;
+                totalAmount += finalPrice * parseInt(item.quantity);
             } catch (error) {
                 console.error('處理商品時出錯:', error);
                 return res.status(400).json({ error: `處理商品時出錯: ${error.message}` });
             }
         }
 
-        // 計算折扣
-        for (const item of orderItems) {
-            const product = await Product.findById(item.product);
-            // 檢查是否為特定商品並應用折扣
-            if (product.name === '咖啡濾掛/包' && item.quantity >= 2) {
-                const itemDiscount = 10 * Math.floor(item.quantity / 2);
-                discount += itemDiscount;
-            }
-        }
-
-        // 計算最終總金額
-        const totalAmount = subtotal - discount;
-
-        console.log('準備創建訂單:', { orderItems, subtotal, discount, totalAmount });
+        console.log('準備創建訂單:', { orderItems, totalAmount });
 
         // 生成訂單編號
         const timestamp = Date.now();
@@ -149,8 +137,6 @@ router.post('/', authMiddleware, async (req, res) => {
             orderNumber,
             user: req.user._id,
             items: orderItems,
-            subtotal,
-            discount,
             totalAmount,
             shippingInfo,
             paymentMethod,
@@ -183,9 +169,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
         const order = await Order.findOne({
             _id: req.params.id,
             user: req.user._id
-        })
-        .populate('items.product')
-        .select('orderNumber createdAt items totalAmount subtotal discount status shippingInfo');
+        }).populate('items.product');
 
         if (!order) {
             return res.status(404).json({ error: '找不到訂單' });
