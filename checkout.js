@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // 計算小計
             cart.forEach(item => {
                 subtotal += item.price * item.quantity;
+
+                // 檢查是否為特定商品並應用折扣
+                if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
+                    subtotal -= 10; // 每滿兩件折10元
+                }
             });
 
             // 計算總計
