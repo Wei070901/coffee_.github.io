@@ -246,10 +246,20 @@ document.addEventListener('DOMContentLoaded', function() {
     async function submitOrder() {
         try {
             const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+            
+            // 計算折扣
+            let discount = 0;
+            cart.forEach(item => {
+                if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
+                    const itemDiscount = 10 * Math.floor(item.quantity / 2);
+                    discount += itemDiscount;
+                }
+            });
+
             const orderData = {
                 items: cart.map(item => ({
                     productId: item.id,
-                    name: item.name,  // 添加商品名稱
+                    name: item.name,
                     quantity: parseInt(item.quantity) || 1,
                     price: parseFloat(item.price)
                 })),
@@ -259,7 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     email: customerData.email,
                     note: customerData.note
                 },
-                paymentMethod: document.querySelector('input[name="payment"]:checked').value
+                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+                discount: discount  // 加入折扣金額
             };
 
             console.log('提交訂單資料:', orderData);
