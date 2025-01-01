@@ -331,9 +331,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 };
                 localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
-                
+
                 // 跳轉到訂單追蹤頁面
-                window.location.href = 'order-tracking.html';
+                window.location.href = `/order-tracking.html?orderId=${responseData._id}`;
             } catch (error) {
                 console.error('訂單提交失敗:', error);
                 alert(error.message || '訂單提交失敗，請稍後再試');
