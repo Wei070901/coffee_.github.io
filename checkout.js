@@ -269,10 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const orderData = {
                 items: cart.map(item => ({
-                    product: item.id,  
+                    productId: item.id || item._id,  // 使用 productId
                     quantity: Number(item.quantity),
-                    price: Number(item.price),
-                    name: item.name
+                    price: Number(item.price)
                 })),
                 shippingInfo: {
                     name: customerData.name,
@@ -281,8 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 paymentMethod: selectedPayment.value,
                 totalAmount: totalAmount,
-                status: 'pending',  
-                createdAt: new Date().toISOString()  
+                status: 'pending'
             };
 
             console.log('提交訂單資料:', JSON.stringify(orderData, null, 2));
