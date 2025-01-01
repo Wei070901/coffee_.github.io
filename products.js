@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         async fetchProducts() {
             try {
-                const response = await fetch('https://coffee-github-io.onrender.com/api/products');
+                const response = await fetch('https://scvs-coffee.netlify.app/api/products');
                 const data = await response.json();
                 this.products = data;
                 this.renderProducts(this.products);

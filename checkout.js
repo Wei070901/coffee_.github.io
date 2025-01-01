@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const apiUrl = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3002' 
-                : 'https://coffee-github-io.onrender.com';
+                : 'https://scvs-coffee.netlify.app';
 
             const response = await fetch(`${apiUrl}/api/orders`, {
                 method: 'POST',
