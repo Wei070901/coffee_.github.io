@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+  orderNumber: {
+    type: String,
+    required: true,
+    unique: true
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -80,6 +85,16 @@ orderSchema.pre('save', function(next) {
       status: this.status,
       timestamp: new Date()
     });
+  }
+  next();
+});
+
+// 在保存之前生成訂單編號
+orderSchema.pre('save', function(next) {
+  if (!this.orderNumber) {
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+    this.orderNumber = `CF${timestamp}-${randomStr}`;
   }
   next();
 });

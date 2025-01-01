@@ -125,8 +125,14 @@ router.post('/', authMiddleware, async (req, res) => {
 
         console.log('準備創建訂單:', { orderItems, totalAmount });
 
+        // 生成訂單編號
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const orderNumber = `CF${timestamp}-${randomStr}`;
+
         // 創建訂單
         const order = new Order({
+            orderNumber,
             user: req.user._id,
             items: orderItems,
             totalAmount,
@@ -141,7 +147,7 @@ router.post('/', authMiddleware, async (req, res) => {
         // 返回訂單資訊
         res.status(201).json({
             _id: order._id,
-            orderNumber: `CF${Date.now()}-${order._id.toString().slice(-6)}`,
+            orderNumber: order.orderNumber,
             totalAmount: order.totalAmount,
             status: order.status
         });
