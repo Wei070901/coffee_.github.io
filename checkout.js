@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
                     const itemDiscount = 10 * Math.floor(item.quantity / 2);
                     discount += itemDiscount;
-                    subtotal -= itemDiscount; // 每滿兩件折10元
                 }
             });
 
