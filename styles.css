@@ -1528,7 +1528,6 @@ main {
 /* 手機版樣式 */
 @media screen and (max-width: 768px) {
     nav {
-        padding: 0.5rem 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
