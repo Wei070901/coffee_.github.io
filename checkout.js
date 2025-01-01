@@ -266,8 +266,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const orderData = {
                 items: cart.map(item => ({
-                    productId: String(item.id),  // 修改 id 為 productId
-                    quantity: item.quantity,
+                    productId: item.id ? String(item.id) : String(item._id), // 處理不同的 ID 格式
+                    quantity: Number(item.quantity),
                     price: Number(item.price)
                 })),
                 shippingInfo: {
@@ -275,7 +275,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     phone: customerData.phone,
                     email: customerData.email
                 },
-                paymentMethod: selectedPayment.value
+                paymentMethod: selectedPayment.value,
+                totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) // 添加總金額
             };
 
             console.log('提交訂單資料:', orderData);
@@ -294,12 +295,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(orderData)
             });
 
-            const responseData = await response.json();
-            
             if (!response.ok) {
-                throw new Error(responseData.error || '訂單建立失敗');
+                const errorData = await response.json();
+                throw new Error(errorData.message || '創建訂單失敗');
             }
 
+            const responseData = await response.json();
+            
             // 清空購物車
             localStorage.removeItem('cartItems');
             
