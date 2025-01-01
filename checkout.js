@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const totalAmount = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
 
             // 生成訂單編號
-            const timestamp = new Date().getTime();
+            const timestamp = Date.now();
             const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
             const orderNumber = `ORD${timestamp}${randomNum}`;
 
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const orderData = {
-                orderNumber: orderNumber,  // 確保這個字段存在且不為 null
+                orderNumber,  // 確保這個字段存在且不為 null
                 items: cart.map(item => ({
                     productId: item.id || item._id,
                     quantity: Number(item.quantity),
@@ -303,13 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    credentials: 'include',
-                    body: JSON.stringify(orderData)
+                    body: JSON.stringify(orderData)  // 確保正確序列化
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.message || '創建訂單失敗');
+                    throw new Error(errorData.message || errorData.error || '創建訂單失敗');
                 }
 
                 const responseData = await response.json();
@@ -323,9 +322,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     cartCount.textContent = '0';
                 }
                 
-                // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
+                // 儲存訂單資訊到 localStorage
                 const lastOrder = {
-                    orderNumber: orderNumber,
+                    orderNumber,
                     total: responseData.totalAmount,
                     orderDate: new Date().toISOString(),
                     items: cart,
