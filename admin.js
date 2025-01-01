@@ -1,5 +1,5 @@
 // 管理員帳號資訊（實際應用中應該存在後端資料庫）
-const API_BASE_URL = 'https://coffee-github-io.onrender.com';
+const API_BASE_URL = 'https://web-production-53e2.up.railway.app';
 
 // DOM 元素
 const loginForm = document.getElementById('adminLoginForm');
@@ -66,12 +66,6 @@ loginForm.addEventListener('submit', async (e) => {
 // 載入訂單資料
 async function loadOrders() {
     try {
-        const token = localStorage.getItem('adminToken');
-        if (!token) {
-            window.location.href = '/login.html';
-            return;
-        }
-
         const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
             headers: {
                 'Authorization': `Bearer ${token}`
