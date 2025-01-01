@@ -3094,6 +3094,10 @@ main {
     padding-bottom: 50px;  /* 為按鈕留出空間 */
 }
 
+.step-buttons {
+    margin: 1rem;
+}
+
 /* 手機版設定 */
 @media screen and (max-width: 768px) {
     .order-info span {
