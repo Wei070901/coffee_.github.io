@@ -261,9 +261,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 items: cart.map(item => {
                     console.log('處理商品:', item);
                     return {
-                        productId: item.id || item._id, // 不轉換為字符串
+                        product: item.id || item._id, // 改用 product 字段
                         quantity: Number(item.quantity),
-                        price: Number(item.price)
+                        price: Number(item.price),
+                        name: item.name,
+                        imageUrl: item.imageUrl
                     };
                 }),
                 shippingInfo: {
@@ -272,7 +274,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     email: customerData.email
                 },
                 paymentMethod: document.querySelector('input[name="payment"]:checked').value,
-                totalAmount: cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0)
+                totalAmount: cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0),
+                status: 'pending', // 添加訂單狀態
+                statusHistory: [{ // 添加狀態歷史
+                    status: 'pending',
+                    timestamp: new Date().toISOString()
+                }]
             };
 
             console.log('提交訂單資料:', JSON.stringify(orderData, null, 2));
