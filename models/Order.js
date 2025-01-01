@@ -27,14 +27,6 @@ const orderSchema = new mongoose.Schema({
       required: true
     }
   }],
-  subtotal: {
-    type: Number,
-    required: true
-  },
-  discount: {
-    type: Number,
-    default: 0
-  },
   totalAmount: {
     type: Number,
     required: true
@@ -56,10 +48,6 @@ const orderSchema = new mongoose.Schema({
     email: {
       type: String,
       required: true
-    },
-    note: {
-      type: String,
-      default: ''
     }
   },
   paymentMethod: {
