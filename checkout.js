@@ -281,8 +281,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('提交訂單資料:', orderData);
 
             const apiUrl = window.location.hostname === 'localhost' 
-                ? 'http://localhost:3002' 
-                : 'https://coffee-github-io.onrender.com';
+                ? 'http://localhost:3000' 
+                : 'https://web-production-53e2.up.railway.app';
 
             const response = await fetch(`${apiUrl}/api/orders`, {
                 method: 'POST',
