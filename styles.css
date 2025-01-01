@@ -2085,25 +2085,21 @@ main {
     font-weight: 500;
 }
 
-#訂單成立
 .status-pending {
     background-color: #fff3cd;
     color: #856404;
 }
 
-#準備中
 .status-processing {
     background-color: #cce5ff;
     color: #004085;
 }
 
-#預約成功
 .status-shipping {
     background-color: #93a1e2ce;
     color: #648d7a;
 }
 
-#已收到
 .status-completed {
     background-color: #d4edda;
     color: #155724;
