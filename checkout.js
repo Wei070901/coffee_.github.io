@@ -297,22 +297,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 : 'https://coffee-github-io.onrender.com';
 
             try {
+                console.log('開始發送訂單請求...');
                 const response = await fetch(`${apiUrl}/api/orders`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify(orderData)  // 確保正確序列化
+                    body: JSON.stringify(orderData)
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || errorData.error || '創建訂單失敗');
+                console.log('收到服務器響應:', response.status, response.statusText);
+                
+                const responseText = await response.text();
+                console.log('響應內容:', responseText);
+                
+                let errorData;
+                try {
+                    errorData = JSON.parse(responseText);
+                } catch (e) {
+                    console.log('響應不是有效的 JSON 格式');
+                    errorData = { message: responseText };
                 }
 
-                const responseData = await response.json();
-                
+                if (!response.ok) {
+                    console.error('服務器錯誤詳情:', errorData);
+                    throw new Error(errorData.message || errorData.error || `服務器錯誤 (${response.status}): ${responseText}`);
+                }
+
                 // 清空購物車
                 localStorage.removeItem('cartItems');
                 
@@ -325,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 儲存訂單資訊到 localStorage
                 const lastOrder = {
                     orderNumber,
-                    total: responseData.totalAmount,
+                    total: totalAmount, // 使用計算好的總金額，因為 responseText 可能不是 JSON
                     orderDate: new Date().toISOString(),
                     items: cart,
                     customerData: {
@@ -341,7 +353,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = 'order-tracking.html';
             } catch (error) {
                 console.error('訂單提交失敗:', error);
-                alert(error.message || '訂單提交失敗，請稍後再試');
+                console.error('完整錯誤對象:', error);
+                alert(`訂單提交失敗: ${error.message}`);
             }
         } catch (error) {
             console.error('訂單提交失敗:', error);
