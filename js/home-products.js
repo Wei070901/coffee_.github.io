@@ -22,20 +22,21 @@ async function renderProducts() {
     const products = await fetchProducts();
     
     productGrid.innerHTML = products.map(product => {
+        const productData = {
+            id: product._id,
+            name: product.name,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            quantity: 1
+        };
+        
         return `
             <div class="coffee-card" style="cursor: default;">
                 <img src="${product.imageUrl}" alt="${product.name}" style="cursor: default;">
                 <h3 style="cursor: default;">${product.name}</h3>
                 <p style="cursor: default;">${product.description}</p>
                 <p class="price">NT$ ${product.price}</p>
-                <button 
-                    data-id="${product._id}"
-                    data-name="${product.name}"
-                    data-price="${product.price}"
-                    data-image="${product.imageUrl}"
-                    class="add-to-cart-btn">
-                    加入購物車
-                </button>
+                <button data-product='${JSON.stringify(productData)}'>加入購物車</button>
             </div>
         `;
     }).join('');
@@ -54,16 +55,11 @@ async function renderProducts() {
         });
     });
 
-    // 為所有加入購物車按鈕添加事件監聽器
-    productGrid.querySelectorAll('.add-to-cart-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const productData = {
-                id: this.dataset.id,
-                name: this.dataset.name,
-                price: parseInt(this.dataset.price),
-                imageUrl: this.dataset.image,
-                quantity: 1
-            };
+    // 添加購物車按鈕事件監聽
+    productGrid.querySelectorAll('.coffee-card button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // 防止事件冒泡
+            const productData = JSON.parse(this.dataset.product);
             if (window.cart) {
                 window.cart.addItem(productData);
             } else {
