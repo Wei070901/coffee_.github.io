@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const formattedOrderId = `CO${orderDate}${orderIdSuffix}`;
 
         document.getElementById('trackingOrderNumber').textContent = formattedOrderId;
-        document.getElementById('trackingOrderAmount').textContent = `NT$ ${order.subtotal.toLocaleString()}`;
+        document.getElementById('trackingOrderAmount').textContent = `NT$ ${(order.subtotal - order.discount).toLocaleString()}`;
         
         // 格式化並顯示訂單日期
         document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString('zh-TW');
