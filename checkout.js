@@ -257,8 +257,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const totalAmount = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
 
             // 生成訂單編號
-            const now = new Date();
-            const orderNumber = `ORD${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+            const timestamp = new Date().getTime();
+            const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            const orderNumber = `ORD${timestamp}${randomNum}`;
 
             // 檢查付款方式是否已選擇
             const selectedPayment = document.querySelector('input[name="payment"]:checked');
@@ -272,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const orderData = {
-                orderNumber: orderNumber,
+                orderNumber: orderNumber,  // 確保這個字段存在且不為 null
                 items: cart.map(item => ({
                     productId: item.id || item._id,
                     quantity: Number(item.quantity),
@@ -285,7 +286,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 paymentMethod: selectedPayment.value,
                 totalAmount: totalAmount,
-                status: 'pending'
+                status: 'pending',
+                createdAt: new Date().toISOString()
             };
 
             console.log('提交訂單資料:', JSON.stringify(orderData, null, 2));
@@ -294,48 +296,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 ? 'http://localhost:3002' 
                 : 'https://coffee-github-io.onrender.com';
 
-            const response = await fetch(`${apiUrl}/api/orders`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                credentials: 'include',
-                body: JSON.stringify(orderData)
-            });
+            try {
+                const response = await fetch(`${apiUrl}/api/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(orderData)
+                });
 
-            const responseData = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(responseData.error || '訂單建立失敗');
-            }
-
-            // 清空購物車
-            localStorage.removeItem('cartItems');
-            
-            // 更新購物車數量顯示
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                cartCount.textContent = '0';
-            }
-            
-            // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
-            const lastOrder = {
-                orderNumber: orderNumber,
-                total: responseData.totalAmount,
-                orderDate: new Date().toISOString(),
-                items: cart,
-                customerData: {
-                    name: customerData.name,
-                    phone: customerData.phone,
-                    email: customerData.email,
-                    payment: selectedPayment.value
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '創建訂單失敗');
                 }
-            };
-            localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
-            
-            // 跳轉到訂單追蹤頁面
-            window.location.href = 'order-tracking.html';
+
+                const responseData = await response.json();
+                
+                // 清空購物車
+                localStorage.removeItem('cartItems');
+                
+                // 更新購物車數量顯示
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = '0';
+                }
+                
+                // 儲存訂單資訊到 localStorage 供訂單追蹤頁面使用
+                const lastOrder = {
+                    orderNumber: orderNumber,
+                    total: responseData.totalAmount,
+                    orderDate: new Date().toISOString(),
+                    items: cart,
+                    customerData: {
+                        name: customerData.name,
+                        phone: customerData.phone,
+                        email: customerData.email,
+                        payment: selectedPayment.value
+                    }
+                };
+                localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
+                
+                // 跳轉到訂單追蹤頁面
+                window.location.href = 'order-tracking.html';
+            } catch (error) {
+                console.error('訂單提交失敗:', error);
+                alert(error.message || '訂單提交失敗，請稍後再試');
+            }
         } catch (error) {
             console.error('訂單提交失敗:', error);
             alert(error.message || '訂單提交失敗，請稍後再試');
