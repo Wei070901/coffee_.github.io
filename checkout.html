@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>結帳 - 你是什麼咖</title>
+    <title>結帳 - 咖啡香</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -12,7 +12,7 @@
         <nav>
             <!-- 左側 Logo -->
             <div class="logo">
-                <a href="index.html">你是什麼咖</a>
+                <a href="index.html">咖啡香</a>
             </div>
         
             <!-- 手機版漢堡選單 -->
@@ -53,17 +53,22 @@
             <div class="order-sidebar">
                 <div class="order-summary">
                     <h3>訂單摘要</h3>
-                    <div class="summary-item">
-                        <span>小計</span>
-                        <span id="checkoutSubtotal">NT$ 0</span>
+                    <div class="order-items" id="sidebarOrderItems">
+                        <!-- 訂單項目將由 JavaScript 動態添加 -->
                     </div>
-                    <div class="summary-item discount">
-                        <span>折扣</span>
-                        <span id="checkoutDiscount">- NT$ 0</span>
-                    </div>
-                    <div class="summary-item total">
-                        <span>總計</span>
-                        <span id="checkoutTotal">NT$ 0</span>
+                    <div class="order-total">
+                        <div class="subtotal">
+                            <span>小計</span>
+                            <span id="sidebarSubtotal">NT$ 0</span>
+                        </div>
+                        <div class="shipping">
+                            <span>運費</span>
+                            <span>NT$ 0</span>
+                        </div>
+                        <div class="total">
+                            <span>總計</span>
+                            <span id="sidebarTotal">NT$ 0</span>
+                        </div>
                     </div>
                 </div>
             </div>

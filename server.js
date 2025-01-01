@@ -63,16 +63,31 @@ const contactRoutes = require('./routes/contact');
 
 const app = express();
 
-// CORS 配置
+// 基本的 CORS 設置
 const corsOptions = {
     origin: function (origin, callback) {
-        callback(null, true); // 允許所有來源
+        const allowedOrigins = [
+            'https://coffee-github-io.onrender.com',
+            'http://localhost:5500',
+            'http://localhost:3000',
+            'http://localhost:10000'
+        ];
+        
+        // 在開發環境中允許沒有 origin 的請求
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.log('Blocked by CORS:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     optionsSuccessStatus: 200
 };
+
+app.use(cors(corsOptions));
 
 // 調試中間件 - 記錄所有請求
 app.use((req, res, next) => {
@@ -104,24 +119,8 @@ app.use(session({
     }
 }));
 
-// 設置 express 中間件
-app.use(express.urlencoded({ extended: true }));
-app.use(cors(corsOptions));
-
-// 首先處理 admin.html 路由
-app.get('/admin.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-// 設置靜態文件服務（排除 admin.html）
-app.use(express.static(path.join(__dirname), {
-    index: false,
-    setHeaders: function (res, path, stat) {
-        if (path.endsWith('admin.html')) {
-            res.set('Cache-Control', 'no-store');
-        }
-    }
-}));
+// 設置靜態文件服務
+app.use(express.static(__dirname));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -130,15 +129,6 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 
-// 最後處理其他所有路由
-app.get('*', (req, res) => {
-    if (req.path === '/admin.html') {
-        res.sendFile(path.join(__dirname, 'admin.html'));
-    } else {
-        res.sendFile(path.join(__dirname, 'index.html'));
-    }
-});
-
 // 錯誤處理中間件
 app.use((err, req, res, next) => {
     console.error('Error:', err);
@@ -146,6 +136,11 @@ app.use((err, req, res, next) => {
         error: '伺服器錯誤',
         message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試'
     });
+});
+
+// 所有其他路由都返回 index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 10000;
