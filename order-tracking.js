@@ -75,10 +75,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 更新訂單狀態和時間
         const orderStatus = {
             'pending': '訂單成立',
-            'processing': '準備出貨',
+            'processing': '準備中',
             'shipping': '預約成功',
-            'completed': '已取貨',
-            'cancelled': '已取消'
+            'completed': '已收到',
         };
 
         // 更新每個狀態的時間

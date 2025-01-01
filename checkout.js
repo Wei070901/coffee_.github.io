@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const apiUrl = window.location.hostname === 'localhost' 
                     ? 'http://localhost:3000' 
-                    : 'https://web-production-53e2.up.railway.app';
+                    : 'https://coffee.up.railway.app';
 
                 const token = localStorage.getItem('token');
                 if (!token) {

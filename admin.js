@@ -1,5 +1,5 @@
 // 管理員帳號資訊（實際應用中應該存在後端資料庫）
-const API_BASE_URL = 'https://web-production-53e2.up.railway.app';
+const API_BASE_URL = 'https://coffee.up.railway.app/';
 
 // DOM 元素
 const loginForm = document.getElementById('adminLoginForm');

@@ -85,7 +85,7 @@ const port = process.env.PORT || 3000;
 
 // 基本的 CORS 設置
 const allowedOrigins = [
-    'https://web-production-53e2.up.railway.app'
+    'https://coffee.up.railway.app'
 ];
 
 if (process.env.ALLOWED_ORIGINS) {
