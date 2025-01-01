@@ -253,6 +253,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('購物車是空的');
             }
 
+            // 計算總金額
+            const totalAmount = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+
             // 檢查付款方式是否已選擇
             const selectedPayment = document.querySelector('input[name="payment"]:checked');
             if (!selectedPayment) {
@@ -266,19 +269,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const orderData = {
                 items: cart.map(item => ({
-                    productId: String(item.id),  // 修改 id 為 productId
-                    quantity: item.quantity,
-                    price: Number(item.price)
+                    product: item.id,  
+                    quantity: Number(item.quantity),
+                    price: Number(item.price),
+                    name: item.name
                 })),
                 shippingInfo: {
                     name: customerData.name,
                     phone: customerData.phone,
                     email: customerData.email
                 },
-                paymentMethod: selectedPayment.value
+                paymentMethod: selectedPayment.value,
+                totalAmount: totalAmount,
+                status: 'pending',  
+                createdAt: new Date().toISOString()  
             };
 
-            console.log('提交訂單資料:', orderData);
+            console.log('提交訂單資料:', JSON.stringify(orderData, null, 2));
 
             const apiUrl = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3002' 
