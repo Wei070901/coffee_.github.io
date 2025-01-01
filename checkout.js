@@ -243,39 +243,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function submitOrder() {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('請先登入');
-            }
-
-            const cart = JSON.parse(localStorage.getItem('cartItems')) || [];
-            if (!cart.length) {
-                throw new Error('購物車是空的');
-            }
-
-            // 檢查付款方式是否已選擇
-            const selectedPayment = document.querySelector('input[name="payment"]:checked');
-            if (!selectedPayment) {
-                throw new Error('請選擇付款方式');
-            }
-
-            // 檢查顧客資料是否完整
-            if (!customerData.name || !customerData.phone || !customerData.email) {
-                throw new Error('請填寫完整的收件資訊');
-            }
-
+            const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
             const orderData = {
                 items: cart.map(item => ({
-                    productId: item.id, // 確保這是正確的 MongoDB ObjectId
-                    quantity: item.quantity,
-                    price: Number(item.price)
+                    productId: item.id,
+                    quantity: parseInt(item.quantity) || 1,
+                    price: parseFloat(item.price)
                 })),
                 shippingInfo: {
                     name: customerData.name,
                     phone: customerData.phone,
                     email: customerData.email
                 },
-                paymentMethod: selectedPayment.value
+                paymentMethod: document.querySelector('input[name="payment"]:checked').value
             };
 
             console.log('提交訂單資料:', orderData);
@@ -285,22 +265,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     ? 'http://localhost:3000' 
                     : 'https://web-production-53e2.up.railway.app';
 
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('請先登入');
+                }
+
                 const response = await fetch(`${apiUrl}/api/orders`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    credentials: 'include',
                     body: JSON.stringify(orderData)
                 });
 
-                const responseData = await response.json();
-                
                 if (!response.ok) {
-                    throw new Error(responseData.error || '訂單建立失敗');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '訂單建立失敗');
                 }
 
+                const responseData = await response.json();
+                
                 // 清空購物車
                 localStorage.removeItem('cartItems');
                 
@@ -322,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         name: customerData.name,
                         phone: customerData.phone,
                         email: customerData.email,
-                        payment: selectedPayment.value
+                        payment: document.querySelector('input[name="payment"]:checked').value
                     }
                 };
                 localStorage.setItem('lastOrder', JSON.stringify(lastOrder));

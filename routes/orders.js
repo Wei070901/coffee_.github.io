@@ -62,6 +62,7 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
     try {
         const { items, shippingInfo, paymentMethod } = req.body;
+        console.log('收到訂單請求:', { items, shippingInfo, paymentMethod });
 
         // 驗證必要資料
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -72,27 +73,40 @@ router.post('/', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: '請提供完整的收件資訊' });
         }
 
+        if (!paymentMethod) {
+            return res.status(400).json({ error: '請選擇付款方式' });
+        }
+
         // 計算訂單總金額
         let totalAmount = 0;
         const orderItems = [];
 
         for (const item of items) {
             try {
+                if (!item.productId || !item.quantity || !item.price) {
+                    throw new Error(`商品資料不完整: ${JSON.stringify(item)}`);
+                }
+
                 const product = await Product.findById(item.productId);
                 if (!product) {
                     return res.status(400).json({ error: `找不到商品: ${item.productId}` });
                 }
 
+                // 驗證價格
+                if (product.price !== item.price) {
+                    return res.status(400).json({ error: `商品 ${product.name} 價格不符` });
+                }
+
                 orderItems.push({
                     product: product._id,
-                    quantity: item.quantity,
+                    quantity: parseInt(item.quantity),
                     price: product.price
                 });
 
-                totalAmount += product.price * item.quantity;
+                totalAmount += product.price * parseInt(item.quantity);
             } catch (error) {
                 console.error('處理商品時出錯:', error);
-                return res.status(400).json({ error: `無效的商品ID: ${item.productId}` });
+                return res.status(400).json({ error: `處理商品時出錯: ${error.message}` });
             }
         }
 
@@ -111,12 +125,13 @@ router.post('/', authMiddleware, async (req, res) => {
         // 返回訂單資訊
         res.status(201).json({
             _id: order._id,
+            orderNumber: `CF${Date.now()}-${order._id.toString().slice(-6)}`,
             totalAmount: order.totalAmount,
             status: order.status
         });
     } catch (error) {
         console.error('創建訂單失敗:', error);
-        res.status(500).json({ error: '創建訂單失敗' });
+        res.status(500).json({ error: '創建訂單失敗', details: error.message });
     }
 });
 
