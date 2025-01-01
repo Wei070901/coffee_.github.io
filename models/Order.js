@@ -48,6 +48,10 @@ const orderSchema = new mongoose.Schema({
     email: {
       type: String,
       required: true
+    },
+    note: {
+      type: String,
+      default: ''
     }
   },
   paymentMethod: {
