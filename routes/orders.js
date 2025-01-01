@@ -104,9 +104,23 @@ router.post('/', authMiddleware, async (req, res) => {
 
                 console.log('找到商品:', product);
 
-                // 驗證價格
-                if (product.price !== item.price) {
-                    console.log('價格不符:', { 商品價格: product.price, 訂單價格: item.price });
+                // 計算折扣後的價格
+                let finalPrice = product.price;
+                if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
+                    const itemDiscount = 10 * Math.floor(item.quantity / 2);
+                    const totalPrice = product.price * item.quantity;
+                    finalPrice = (totalPrice - itemDiscount) / item.quantity;
+                }
+
+                // 驗證價格（允許小數點後兩位的誤差）
+                const priceDiff = Math.abs(finalPrice - item.price);
+                if (priceDiff > 0.01) {
+                    console.log('價格不符:', { 
+                        商品原價: product.price,
+                        折扣後價格: finalPrice,
+                        訂單價格: item.price,
+                        差異: priceDiff
+                    });
                     return res.status(400).json({ error: `商品 ${product.name} 價格不符` });
                 }
 
