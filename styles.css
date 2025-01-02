@@ -1291,7 +1291,7 @@ main {
 }
 
 .about-hero {
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://via.placeholder.com/1920x600');
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/img/S__7282706.jpg');
     background-size: cover;
     background-position: center;
     height: 400px;
