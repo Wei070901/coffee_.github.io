@@ -1291,7 +1291,7 @@ main {
 }
 
 .about-hero {
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.ibb.co/NnWJ13G/IMG-5542.jpg');
+    background-image: linear-gradient(rgba(156, 140, 126, 0.767), rgba(156, 140, 126, 0.767));
     background-size: cover;
     background-position: center;
     height: 400px;
@@ -1627,7 +1627,7 @@ main {
 }
 
 .contact-hero {
-    background-image: linear-gradient(rgba(201, 180, 161, 0.767), rgba(201, 180, 161, 0.767));
+    background-image: linear-gradient(rgba(156, 140, 126, 0.767), rgba(156, 140, 126, 0.767));
     background-size: cover;
     background-position: center;
     height: 300px;
