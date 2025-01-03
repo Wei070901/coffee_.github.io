@@ -1294,7 +1294,7 @@ main {
     background-image: linear-gradient(rgba(156, 140, 126, 0.767), rgba(156, 140, 126, 0.767));
     background-size: cover;
     background-position: center;
-    height: 400px;
+    height: 300px;
     display: flex;
     flex-direction: column;
     justify-content: center;
