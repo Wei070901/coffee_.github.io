@@ -1627,7 +1627,7 @@ main {
 }
 
 .contact-hero {
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://via.placeholder.com/1920x400');
+    background-image: linear-gradient(rgba(201, 180, 161, 0.767), rgba(201, 180, 161, 0.767));
     background-size: cover;
     background-position: center;
     height: 300px;
