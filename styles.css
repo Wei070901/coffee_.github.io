@@ -3093,6 +3093,10 @@ main {
     margin: 1rem;
 }
 
+.social-link-img{
+    width: 100%;
+}
+
 /* 手機版設定 */
 @media screen and (max-width: 768px) {
     .order-info span {
