@@ -126,9 +126,15 @@ function renderOrders(orders) {
     }
 
     if (!orders || !Array.isArray(orders) || orders.length === 0) {
-        orderTableBody.innerHTML = '<tr><td colspan="8" class="no-orders">目前沒有訂單</td></tr>';
+        orderTableBody.innerHTML = '<tr><td colspan="9" class="no-orders">目前沒有訂單</td></tr>';
         return;
     }
+
+    // 付款方式對應表
+    const paymentMethods = {
+        'cash-taipei': '現金-台北車站',
+        'cash-sanchong': '現金-三重商工'
+    };
 
     const orderHTML = orders.map(order => {
         const orderDate = new Date(order.createdAt);
@@ -139,6 +145,9 @@ function renderOrders(orders) {
             `${item.product.name} x ${item.quantity}`
         ).join(', ');
 
+        // 取得付款方式顯示文字
+        const paymentMethod = paymentMethods[order.paymentMethod] || order.paymentMethod || '-';
+
         return `
             <tr>
                 <td>${formatOrderId(order)}</td>
@@ -146,6 +155,7 @@ function renderOrders(orders) {
                 <td>${order.shippingInfo?.name || ''}</td>
                 <td>${itemsInfo}</td>
                 <td>NT$ ${order.totalAmount.toLocaleString()}</td>
+                <td>${paymentMethod}</td>
                 <td>
                     <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
                         <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>訂單成立</option>
@@ -212,7 +222,36 @@ async function viewOrderDetails(orderId) {
         }
         
         const order = await response.json();
-        alert(JSON.stringify(order, null, 2));
+        
+        // 付款方式對應表
+        const paymentMethods = {
+            'cash-taipei': '現金-台北車站',
+            'cash-sanchong': '現金-三重商工'
+        };
+
+        // 格式化訂單資訊
+        const orderDate = new Date(order.createdAt);
+        const formattedDate = orderDate.toLocaleString('zh-TW');
+        const paymentMethod = paymentMethods[order.paymentMethod] || order.paymentMethod || '-';
+        
+        const orderDetails = `
+訂單編號: ${formatOrderId(order)}
+訂購日期: ${formattedDate}
+客戶姓名: ${order.shippingInfo?.name || '-'}
+聯絡電話: ${order.shippingInfo?.phone || '-'}
+電子信箱: ${order.shippingInfo?.email || '-'}
+付款方式: ${paymentMethod}
+訂單狀態: ${order.status}
+訂單備註: ${order.shippingInfo?.note || '-'}
+
+商品明細:
+${order.items.map(item => `${item.product.name} x ${item.quantity} (NT$ ${item.price})`).join('\n')}
+
+商品折扣: NT$ ${order.discount || 0}
+會員折扣: NT$ ${order.memberDiscount || 0}
+訂單總額: NT$ ${order.totalAmount}
+`;
+        alert(orderDetails);
     } catch (error) {
         console.error('獲取訂單詳情失敗:', error);
         alert(error.message || '獲取訂單詳情失敗，請稍後再試');
