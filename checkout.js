@@ -1,10 +1,10 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     const steps = document.querySelectorAll('.step');
     let currentStep = 1;
     let customerData = {};
 
     // 初始化訂單資料
-    function initializeOrderData() {
+    async function initializeOrderData() {
         try {
             // 從 localStorage 獲取購物車資料
             const cart = JSON.parse(localStorage.getItem('cartItems')) || [];
@@ -23,8 +23,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
+            // 計算商品折扣後的金額
+            let afterDiscount = subtotal - discount;
+
+            // 檢查是否為會員首單
+            let memberDiscount = 0;
+            let isMemberFirstOrder = false;
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const apiUrl = window.location.hostname === 'localhost' 
+                        ? 'http://localhost:3000' 
+                        : 'https://coffee.up.railway.app';
+
+                    const response = await fetch(`${apiUrl}/api/orders/my-orders`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const orders = await response.json();
+                        if (orders.length === 0) {
+                            // 是首單，計算會員折扣（商品折扣後的金額再打9折）
+                            isMemberFirstOrder = true;
+                            memberDiscount = Math.round(afterDiscount * 0.1); // 計算10%折扣
+                            afterDiscount = afterDiscount - memberDiscount; // 應用會員折扣
+                        }
+                    }
+                } catch (error) {
+                    console.error('檢查會員訂單狀態失敗:', error);
+                }
+            }
+
             // 計算總計
-            const total = subtotal + shipping - discount;
+            const total = afterDiscount + shipping;
 
             // 更新側邊欄訂單摘要
             const sidebarOrderItems = document.getElementById('sidebarOrderItems');
@@ -39,7 +72,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 更新小計、折扣和總計
                 document.getElementById('sidebarSubtotal').textContent = `NT$ ${subtotal}`;
                 document.getElementById('sidebarTotal').textContent = `NT$ ${total}`;
-                document.getElementById('sidebarDiscount').textContent = `NT$ ${discount}`;
+                
+                // 更新折扣顯示
+                const discountElement = document.getElementById('sidebarDiscount');
+                if (discountElement) {
+                    let totalDiscount = discount + memberDiscount;
+                    let discountText = `NT$ ${totalDiscount}`;
+                    if (isMemberFirstOrder) {
+                        discountText += ' (含會員首單9折優惠)';
+                    }
+                    discountElement.textContent = discountText;
+                }
             }
 
             // 更新確認頁面的訂單摘要
@@ -61,10 +104,18 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span>小計</span>
                                 <span>NT$ ${subtotal}</span>
                             </div>
+                            ${discount > 0 ? `
                             <div class="discount">
-                                <span>折扣</span>
+                                <span>商品折扣</span>
                                 <span>NT$ ${discount}</span>
                             </div>
+                            ` : ''}
+                            ${memberDiscount > 0 ? `
+                            <div class="member-discount">
+                                <span>會員首單9折優惠</span>
+                                <span>NT$ ${memberDiscount}</span>
+                            </div>
+                            ` : ''}
                             <div class="shipping">
                                 <span>運費</span>
                                 <span>NT$ ${shipping}</span>
@@ -84,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 初始化頁面
-    initializeOrderData();
+    await initializeOrderData();
 
     // 下一步按鈕事件
     document.querySelectorAll('.next-step-btn').forEach(button => {
@@ -247,37 +298,25 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
             
-            // 計算折扣
-            let discount = 0;
+            // 計算商品折扣
+            let itemDiscount = 0;
             cart.forEach(item => {
                 if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
-                    const itemDiscount = 10 * Math.floor(item.quantity / 2);
-                    discount += itemDiscount;
+                    const currentItemDiscount = 10 * Math.floor(item.quantity / 2);
+                    itemDiscount += currentItemDiscount;
                 }
             });
 
-            // 計算每個商品的最終價格
-            const itemsWithDiscountedPrice = cart.map(item => {
-                let itemDiscount = 0;
-                if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
-                    itemDiscount = 10 * Math.floor(item.quantity / 2);
-                }
-                
-                // 計算該商品的總價
-                const totalItemPrice = item.price * item.quantity;
-                // 計算折扣後的單價
-                const discountedPrice = (totalItemPrice - itemDiscount) / item.quantity;
-                
-                return {
-                    productId: item.id,
-                    name: item.name,
-                    quantity: parseInt(item.quantity) || 1,
-                    price: discountedPrice // 使用折扣後的單價
-                };
-            });
+            // 提交原始價格，讓後端處理所有折扣計算
+            const items = cart.map(item => ({
+                productId: item.id,
+                name: item.name,
+                quantity: parseInt(item.quantity) || 1,
+                price: item.price // 使用原始價格
+            }));
 
             const orderData = {
-                items: itemsWithDiscountedPrice,
+                items: items,
                 shippingInfo: {
                     name: customerData.name,
                     phone: customerData.phone,
@@ -294,22 +333,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     ? 'http://localhost:3000' 
                     : 'https://coffee.up.railway.app';
 
+                // 構建請求頭
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+
+                // 如果有登入token，加入到請求頭中
                 const token = localStorage.getItem('token');
-                if (!token) {
-                    throw new Error('請先登入');
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
                 }
 
                 console.log('開始提交訂單');
                 console.log('API URL:', `${apiUrl}/api/orders`);
                 console.log('訂單數據:', orderData);
-                console.log('Authorization:', `Bearer ${token}`);
 
                 const response = await fetch(`${apiUrl}/api/orders`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: headers,
                     body: JSON.stringify(orderData)
                 });
 

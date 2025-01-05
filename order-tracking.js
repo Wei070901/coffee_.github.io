@@ -12,12 +12,18 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         // 從後端獲取訂單資訊
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        // 如果有登入token，加入到請求頭中
         const token = localStorage.getItem('token');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${config.apiUrl}/orders/${orderId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            credentials: 'include'
+            headers: headers
         });
 
         if (!response.ok) {

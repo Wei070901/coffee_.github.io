@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
   },
   items: [{
     product: {
@@ -72,6 +72,16 @@ const orderSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
+  discount: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  memberDiscount: {
+    type: Number,
+    required: true,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

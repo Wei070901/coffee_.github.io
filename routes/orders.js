@@ -59,10 +59,10 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
 });
 
 // 創建新訂單
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', async (req, res) => {
     console.log('收到訂單請求 - 開始處理');
     console.log('請求頭:', req.headers);
-    console.log('用戶信息:', req.user);
+    console.log('請求體:', req.body);
     
     try {
         const { items, shippingInfo, paymentMethod } = req.body;
@@ -84,8 +84,28 @@ router.post('/', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: '請選擇付款方式' });
         }
 
-        // 計算訂單總金額
-        let totalAmount = 0;
+        // 檢查是否為會員訂單
+        let user = null;
+        let isFirstOrder = false;
+        if (req.headers.authorization) {
+            try {
+                const token = req.headers.authorization.replace('Bearer ', '');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                user = await User.findById(decoded.userId);
+                
+                // 檢查是否為首單
+                if (user) {
+                    const orderCount = await Order.countDocuments({ user: user._id });
+                    isFirstOrder = orderCount === 0;
+                }
+            } catch (error) {
+                console.log('驗證token失敗，視為訪客訂單:', error);
+            }
+        }
+
+        // 計算訂單總金額和折扣
+        let subtotal = 0;
+        let itemDiscount = 0;
         const orderItems = [];
 
         for (const item of items) {
@@ -99,97 +119,123 @@ router.post('/', authMiddleware, async (req, res) => {
                 const product = await Product.findById(item.productId);
                 if (!product) {
                     console.log('找不到商品:', item.productId);
-                    return res.status(400).json({ error: `找不到商品: ${item.productId}` });
+                    throw new Error(`找不到商品: ${item.productId}`);
                 }
 
-                console.log('找到商品:', product);
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
 
-                // 計算折扣後的價格
-                let finalPrice = product.price;
+                // 計算商品折扣（如果有的話）
                 if (item.name === '咖啡濾掛/包' && item.quantity >= 2) {
-                    const itemDiscount = 10 * Math.floor(item.quantity / 2);
-                    const totalPrice = product.price * item.quantity;
-                    finalPrice = (totalPrice - itemDiscount) / item.quantity;
-                }
-
-                // 驗證價格（允許小數點後兩位的誤差）
-                const priceDiff = Math.abs(finalPrice - item.price);
-                if (priceDiff > 0.01) {
-                    console.log('價格不符:', { 
-                        商品原價: product.price,
-                        折扣後價格: finalPrice,
-                        訂單價格: item.price,
-                        差異: priceDiff
-                    });
-                    return res.status(400).json({ error: `商品 ${product.name} 價格不符` });
+                    const currentItemDiscount = 10 * Math.floor(item.quantity / 2);
+                    itemDiscount += currentItemDiscount;
                 }
 
                 orderItems.push({
-                    product: product._id,
-                    quantity: parseInt(item.quantity),
-                    price: finalPrice
+                    product: item.productId,
+                    quantity: item.quantity,
+                    price: item.price
                 });
-
-                totalAmount += finalPrice * parseInt(item.quantity);
             } catch (error) {
-                console.error('處理商品時出錯:', error);
-                return res.status(400).json({ error: `處理商品時出錯: ${error.message}` });
+                console.error('處理商品時發生錯誤:', error);
+                throw error;
             }
         }
 
-        console.log('準備創建訂單:', { orderItems, totalAmount });
+        // 計算商品折扣後的金額
+        let afterItemDiscount = subtotal - itemDiscount;
 
-        // 生成訂單編號
+        // 如果是會員首單，應用九折優惠（在商品折扣後的金額上計算）
+        let memberDiscount = 0;
+        if (user && isFirstOrder) {
+            memberDiscount = Math.round(afterItemDiscount * 0.1); // 計算10%折扣
+            afterItemDiscount = afterItemDiscount - memberDiscount; // 應用會員折扣
+        }
+
+        // 最終總金額
+        const totalAmount = afterItemDiscount;
+
+        // 創建訂單
         const timestamp = Date.now();
         const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
         const orderNumber = `CF${timestamp}-${randomStr}`;
 
-        // 創建訂單
         const order = new Order({
             orderNumber,
-            user: req.user._id,
+            user: user ? user._id : null,
             items: orderItems,
             totalAmount,
+            discount: itemDiscount + memberDiscount, // 總折扣金額
+            memberDiscount, // 會員折扣金額
             shippingInfo,
             paymentMethod,
             status: 'pending'
         });
 
         await order.save();
-        console.log('訂單創建成功:', order._id);
-        
-        // 返回訂單資訊
-        res.status(201).json({
-            _id: order._id,
-            orderNumber: order.orderNumber,
-            totalAmount: order.totalAmount,
-            status: order.status
-        });
+        console.log('訂單創建成功:', order);
+
+        res.status(201).json(order);
     } catch (error) {
         console.error('創建訂單失敗:', error);
-        res.status(500).json({ 
-            error: '創建訂單失敗', 
-            message: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
+        res.status(400).json({ error: error.message || '創建訂單失敗' });
     }
 });
 
 // 獲取單個訂單
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const order = await Order.findOne({
-            _id: req.params.id,
-            user: req.user._id
-        }).populate('items.product');
+        const order = await Order.findById(req.params.id)
+            .populate('items.product');
 
         if (!order) {
             return res.status(404).json({ error: '找不到訂單' });
         }
 
-        // 設置 CORS 頭
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-        res.header('Access-Control-Allow-Credentials', 'true');
+        // 如果訂單屬於會員，需要驗證權限
+        if (order.user) {
+            const token = req.headers.authorization?.replace('Bearer ', '');
+            if (!token) {
+                // 如果沒有提供 token，只返回基本訂單資訊
+                const basicOrderInfo = {
+                    orderNumber: order.orderNumber,
+                    status: order.status,
+                    createdAt: order.createdAt,
+                    totalAmount: order.totalAmount,
+                    items: order.items
+                };
+                return res.json(basicOrderInfo);
+            }
+
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const user = await User.findById(decoded.userId);
+                
+                if (!user || user._id.toString() !== order.user.toString()) {
+                    // 如果用戶不匹配，只返回基本訂單資訊
+                    const basicOrderInfo = {
+                        orderNumber: order.orderNumber,
+                        status: order.status,
+                        createdAt: order.createdAt,
+                        totalAmount: order.totalAmount,
+                        items: order.items
+                    };
+                    return res.json(basicOrderInfo);
+                }
+            } catch (error) {
+                // token 驗證失敗，只返回基本訂單資訊
+                const basicOrderInfo = {
+                    orderNumber: order.orderNumber,
+                    status: order.status,
+                    createdAt: order.createdAt,
+                    totalAmount: order.totalAmount,
+                    items: order.items
+                };
+                return res.json(basicOrderInfo);
+            }
+        }
+
+        // 返回完整訂單資訊
         res.json(order);
     } catch (error) {
         console.error('獲取訂單失敗:', error);
