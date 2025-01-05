@@ -11,13 +11,9 @@ router.post('/login', async (req, res) => {
         
         // 在實際應用中，這些憑證應該存儲在資料庫中並加密
         if (username === 'coffee' && password === 'coffeecoffee') {
-            // 生成 JWT token，添加 role: 'admin'
+            // 生成 JWT token
             const token = jwt.sign(
-                { 
-                    userId: 'admin',
-                    role: 'admin',
-                    isAdmin: true 
-                },
+                { isAdmin: true },
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' }
             );

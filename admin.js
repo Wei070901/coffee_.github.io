@@ -70,37 +70,22 @@ loginForm.addEventListener('submit', async (e) => {
 async function loadOrders() {
     try {
         const token = localStorage.getItem('adminToken');
-        if (!token) {
-            throw new Error('請先登入');
-        }
-
-        const response = await fetch(`${API_BASE_URL}/api/orders`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
+            headers: token ? {
+                'Authorization': `Bearer ${token}`
+            } : {}
         });
 
         if (!response.ok) {
-            if (response.status === 403) {
-                alert('沒有權限訪問訂單資料，請重新登入');
-                logout();
-                return;
-            }
             throw new Error('獲取訂單列表失敗');
         }
 
         const orders = await response.json();
-        console.log('訂單資料:', orders);
+        console.log('訂單資料:', orders); // 添加這行來檢查訂單資料
         renderOrders(orders);
     } catch (error) {
         console.error('載入訂單失敗:', error);
-        if (error.message === '請先登入') {
-            alert(error.message);
-            logout();
-        } else {
-            alert('載入訂單失敗，請稍後再試');
-        }
+        alert('載入訂單失敗，請稍後再試');
     }
 }
 
@@ -199,7 +184,7 @@ async function updateOrderStatus(orderId, newStatus) {
             throw new Error('請先登入');
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/status`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -225,7 +210,7 @@ async function updateOrderStatus(orderId, newStatus) {
 async function viewOrderDetails(orderId) {
     try {
         const token = localStorage.getItem('adminToken');
-        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
