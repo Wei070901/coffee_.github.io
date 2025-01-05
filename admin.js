@@ -70,7 +70,7 @@ loginForm.addEventListener('submit', async (e) => {
 async function loadOrders() {
     try {
         const token = localStorage.getItem('adminToken');
-        const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
             headers: token ? {
                 'Authorization': `Bearer ${token}`
             } : {}
@@ -81,7 +81,7 @@ async function loadOrders() {
         }
 
         const orders = await response.json();
-        console.log('訂單資料:', orders); // 添加這行來檢查訂單資料
+        console.log('訂單資料:', orders);
         renderOrders(orders);
     } catch (error) {
         console.error('載入訂單失敗:', error);
@@ -184,7 +184,7 @@ async function updateOrderStatus(orderId, newStatus) {
             throw new Error('請先登入');
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/status`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -210,7 +210,7 @@ async function updateOrderStatus(orderId, newStatus) {
 async function viewOrderDetails(orderId) {
     try {
         const token = localStorage.getItem('adminToken');
-        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
