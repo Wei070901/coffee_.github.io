@@ -275,6 +275,7 @@ router.get('/', adminAuth, async (req, res) => {
     const orders = await Order.find({})
       .populate('user', 'name email')
       .populate('items.product', 'name price imageUrl')
+      .select('orderNumber createdAt items totalAmount status shippingInfo paymentMethod discount memberDiscount')
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -287,7 +288,8 @@ router.get('/admin/:id', adminAuth, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate('user', 'name email')
-      .populate('items.product', 'name price imageUrl');
+      .populate('items.product', 'name price imageUrl')
+      .select('orderNumber createdAt items totalAmount status shippingInfo paymentMethod discount memberDiscount');
 
     if (!order) {
       return res.status(404).json({ error: '找不到訂單' });
