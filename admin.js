@@ -70,13 +70,23 @@ loginForm.addEventListener('submit', async (e) => {
 async function loadOrders() {
     try {
         const token = localStorage.getItem('adminToken');
+        if (!token) {
+            throw new Error('請先登入');
+        }
+
         const response = await fetch(`${API_BASE_URL}/api/orders`, {
-            headers: token ? {
-                'Authorization': `Bearer ${token}`
-            } : {}
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
 
         if (!response.ok) {
+            if (response.status === 403) {
+                alert('沒有權限訪問訂單資料，請重新登入');
+                logout();
+                return;
+            }
             throw new Error('獲取訂單列表失敗');
         }
 
@@ -85,7 +95,12 @@ async function loadOrders() {
         renderOrders(orders);
     } catch (error) {
         console.error('載入訂單失敗:', error);
-        alert('載入訂單失敗，請稍後再試');
+        if (error.message === '請先登入') {
+            alert(error.message);
+            logout();
+        } else {
+            alert('載入訂單失敗，請稍後再試');
+        }
     }
 }
 
