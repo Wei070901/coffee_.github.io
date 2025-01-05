@@ -81,7 +81,7 @@ async function loadOrders() {
         }
 
         const orders = await response.json();
-        console.log('Loaded orders:', orders);
+        console.log('訂單資料:', orders); // 添加這行來檢查訂單資料
         renderOrders(orders);
     } catch (error) {
         console.error('載入訂單失敗:', error);
@@ -146,7 +146,8 @@ function renderOrders(orders) {
         ).join(', ');
 
         // 取得付款方式顯示文字
-        const paymentMethod = paymentMethods[order.paymentMethod] || order.paymentMethod || '-';
+        console.log('訂單付款方式:', order.paymentMethod); // 添加這行來檢查付款方式
+        const paymentMethod = order.paymentMethod ? paymentMethods[order.paymentMethod] || order.paymentMethod : '-';
 
         return `
             <tr>
